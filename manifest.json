@@ -1,15 +1,16 @@
 {
+  "manifest_version": 1,
   "name": "OSE Advanced Fantasy Character Sheet",
   "version": "1.0.0",
   "description": "A full character sheet for Old-School Essentials Advanced Fantasy with dice roller",
   "author": "OSE Tools",
-  "icon": "/icon.svg",
+  "icon": "https://knchesmore.github.io/2-sheets-to-the-wind/icon.svg",
   "tokens": [],
   "action": {
     "title": "OSE Character Sheet",
-    "icon": "/icon.svg",
+    "icon": "https://knchesmore.github.io/2-sheets-to-the-wind/icon.svg",
     "popover": {
-      "url": "/src/sheet.html",
+      "url": "https://knchesmore.github.io/2-sheets-to-the-wind/src/sheet.html",
       "height": 680,
       "width": 520
     }
