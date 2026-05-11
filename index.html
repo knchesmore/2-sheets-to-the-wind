@@ -3,1845 +3,975 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>OSE Advanced Fantasy</title>
+<title>OSE Character Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"/>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap');
-
-  :root {
-    --bg:        #0e0a07;
-    --bg2:       #15100b;
-    --bg3:       #1e160f;
-    --border:    #4a3218;
-    --border2:   #6b4a22;
-    --gold:      #c9962a;
-    --gold2:     #e8b84b;
-    --gold-dim:  #7a5a18;
-    --red:       #8b2020;
-    --red2:      #c43030;
-    --text:      #d4b896;
-    --text2:     #a08060;
-    --text-head: #e8d4b0;
-    --parchment: #c8a96e;
-    --ink:       #1a0e06;
-    --shadow:    rgba(0,0,0,0.8);
-    --glow:      rgba(201,150,42,0.3);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    width: 100%; height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'IM Fell English', Georgia, serif;
-    font-size: 13px;
-    overflow: hidden;
-  }
-
-  /* ── Scrollbar ── */
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: var(--bg2); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
-  /* ── Layout ── */
-  #app { display: flex; flex-direction: column; height: 100vh; }
-
-  /* ── Header ── */
-  #header {
-    background: linear-gradient(180deg, #1e1208 0%, #120c06 100%);
-    border-bottom: 2px solid var(--gold-dim);
-    padding: 6px 10px 5px;
-    flex-shrink: 0;
-    position: relative;
-  }
-  #header::after {
-    content: '';
-    position: absolute; bottom: -4px; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  }
-  .header-top {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 5px;
-  }
-  .header-title {
-    font-family: 'UnifrakturMaguntia', cursive;
-    font-size: 20px;
-    color: var(--gold2);
-    text-shadow: 0 0 12px var(--glow);
-    letter-spacing: 1px;
-    flex: 1;
-  }
-  .char-identity {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 4px;
-  }
-  .id-field { display: flex; flex-direction: column; gap: 1px; }
-  .id-label {
-    font-size: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--gold-dim);
-    font-family: 'IM Fell English SC', serif;
-  }
-  .id-input {
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--border);
-    color: var(--text-head);
-    font-family: 'IM Fell English', serif;
-    font-size: 12px;
-    padding: 1px 2px;
-    width: 100%;
-    outline: none;
-  }
-  .id-input:focus { border-bottom-color: var(--gold); }
-
-  /* ── Tabs ── */
-  #tabs {
-    display: flex;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .tab-btn {
-    flex: 1;
-    padding: 7px 4px;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--text2);
-    font-family: 'IM Fell English SC', serif;
-    font-size: 11px;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
-  .tab-btn.active {
-    color: var(--gold2);
-    border-bottom-color: var(--gold);
-    background: rgba(201,150,42,0.06);
-  }
-
-  /* ── Content ── */
-  #content {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 8px;
-  }
-
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-
-  /* ── Sections ── */
-  .section {
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    margin-bottom: 8px;
-    background: var(--bg2);
-    overflow: hidden;
-  }
-  .section-title {
-    background: linear-gradient(90deg, var(--bg3) 0%, var(--bg2) 100%);
-    border-bottom: 1px solid var(--border);
-    padding: 4px 8px;
-    font-family: 'IM Fell English SC', serif;
-    font-size: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--parchment);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .section-title::before {
-    content: '⚔';
-    font-size: 9px;
-    color: var(--gold-dim);
-  }
-
-  /* ── Stat Grid ── */
-  .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 4px;
-    padding: 8px;
-  }
-  .stat-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 6px 3px 4px;
-    cursor: pointer;
-    transition: border-color 0.15s;
-    position: relative;
-  }
-  .stat-box:hover { border-color: var(--gold); }
-  .stat-box:hover .stat-roll-hint { opacity: 1; }
-  .stat-roll-hint {
-    position: absolute; top: 2px; right: 3px;
-    font-size: 7px; color: var(--gold-dim);
-    opacity: 0; transition: opacity 0.15s;
-  }
-  .stat-abbr {
-    font-family: 'IM Fell English SC', serif;
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--gold-dim);
-    margin-bottom: 3px;
-  }
-  .stat-val {
-    font-size: 22px;
-    font-weight: bold;
-    color: var(--gold2);
-    line-height: 1;
-    width: 36px;
-    text-align: center;
-    background: none;
-    border: none;
-    outline: none;
-    font-family: 'IM Fell English', serif;
-  }
-  .stat-val:focus { color: #fff; }
-  .stat-mod {
-    font-size: 10px;
-    color: var(--text2);
-    margin-top: 2px;
-    min-height: 14px;
-  }
-  .stat-sub {
-    font-size: 8px;
-    color: var(--text2);
-    text-align: center;
-    margin-top: 2px;
-    min-height: 10px;
-  }
-
-  /* ── Combat Row ── */
-  .combat-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-    padding: 8px;
-  }
-  .combat-box {
-    display: flex; flex-direction: column; align-items: center;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 5px 3px;
-  }
-  .combat-label {
-    font-size: 8px; letter-spacing: 0.5px;
-    color: var(--text2); margin-bottom: 2px;
-    text-align: center; font-family: 'IM Fell English SC', serif;
-  }
-  .combat-val {
-    font-size: 16px;
-    color: var(--text-head);
-    background: none; border: none;
-    border-bottom: 1px solid var(--border);
-    text-align: center;
-    width: 40px;
-    outline: none;
-    font-family: 'IM Fell English', serif;
-  }
-  .combat-val:focus { border-bottom-color: var(--gold); }
-
-  /* ── Abilities ── */
-  .ability-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-    padding: 8px;
-  }
-  .ability-row {
-    display: flex;
-    align-items: center;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 4px 6px;
-    gap: 6px;
-  }
-  .ability-name {
-    font-size: 10px;
-    color: var(--text2);
-    width: 90px;
-    flex-shrink: 0;
-  }
-  .ability-val {
-    font-size: 13px;
-    color: var(--text-head);
-    background: none; border: none;
-    border-bottom: 1px dotted var(--border);
-    width: 30px; text-align: center;
-    outline: none;
-    font-family: 'IM Fell English', serif;
-  }
-  .ability-val:focus { border-bottom-color: var(--gold); }
-
-  /* ── Saving Throws ── */
-  .save-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 4px;
-    padding: 8px;
-  }
-  .save-box {
-    display: flex; flex-direction: column; align-items: center;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 5px 3px;
-    cursor: pointer;
-  }
-  .save-box:hover { border-color: var(--gold); }
-  .save-label {
-    font-size: 8px; text-align: center;
-    color: var(--text2);
-    margin-bottom: 2px;
-    line-height: 1.2;
-    font-family: 'IM Fell English SC', serif;
-  }
-  .save-val {
-    font-size: 16px;
-    color: var(--text-head);
-    background: none; border: none;
-    border-bottom: 1px solid var(--border);
-    text-align: center; width: 36px;
-    outline: none;
-    font-family: 'IM Fell English', serif;
-  }
-
-  /* ── Languages ── */
-  .languages-box {
-    padding: 8px;
-  }
-  .lang-list {
-    display: flex; flex-wrap: wrap; gap: 4px;
-    margin-bottom: 6px;
-    min-height: 24px;
-  }
-  .lang-tag {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 2px 6px;
-    font-size: 11px;
-    color: var(--text);
-    display: flex; align-items: center; gap: 4px;
-  }
-  .lang-remove {
-    cursor: pointer; color: var(--red2); font-size: 10px;
-    line-height: 1;
-  }
-  .lang-remove:hover { color: #ff5555; }
-  .lang-add {
-    display: flex; gap: 4px;
-  }
-  .lang-input {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 3px 6px;
-    color: var(--text);
-    font-family: 'IM Fell English', serif;
-    font-size: 12px;
-    outline: none;
-    flex: 1;
-  }
-  .lang-input:focus { border-color: var(--gold); }
-  .btn-small {
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 2px;
-    padding: 3px 8px;
-    color: var(--gold);
-    font-family: 'IM Fell English SC', serif;
-    font-size: 11px;
-    cursor: pointer;
-  }
-  .btn-small:hover { background: rgba(201,150,42,0.1); border-color: var(--gold); }
-
-  /* ── INVENTORY ── */
-  .inventory-header {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 40px;
-    gap: 4px;
-    padding: 4px 8px;
-    font-size: 8px;
-    letter-spacing: 1px;
-    color: var(--gold-dim);
-    font-family: 'IM Fell English SC', serif;
-    border-bottom: 1px solid var(--border);
-  }
-  .inventory-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 40px;
-    gap: 4px;
-    padding: 3px 8px;
-    border-bottom: 1px solid rgba(74,50,24,0.4);
-    align-items: center;
-  }
-  .inventory-row:last-child { border-bottom: none; }
-  .inv-input {
-    background: none; border: none;
-    border-bottom: 1px dotted transparent;
-    color: var(--text);
-    font-family: 'IM Fell English', serif;
-    font-size: 12px;
-    outline: none; width: 100%;
-    padding: 1px 2px;
-  }
-  .inv-input:focus { border-bottom-color: var(--border2); }
-  .inv-delete {
-    background: none; border: none;
-    color: var(--red); cursor: pointer;
-    font-size: 12px; padding: 0;
-  }
-  .inv-delete:hover { color: var(--red2); }
-  .inv-footer {
-    padding: 6px 8px;
-    display: flex; justify-content: space-between; align-items: center;
-    border-top: 1px solid var(--border);
-    background: var(--bg3);
-  }
-  .encumbrance-bar {
-    flex: 1; height: 4px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    margin: 0 8px;
-    overflow: hidden;
-  }
-  .encumbrance-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
-    border-radius: 2px;
-    transition: width 0.3s;
-  }
-  .enc-text { font-size: 10px; color: var(--text2); white-space: nowrap; }
-
-  /* ── SPELLS ── */
-  .spell-level-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 5px 8px;
-    background: var(--bg3);
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    user-select: none;
-  }
-  .spell-level-title {
-    font-family: 'IM Fell English SC', serif;
-    font-size: 10px;
-    letter-spacing: 1px;
-    color: var(--parchment);
-  }
-  .spell-slots {
-    display: flex; gap: 3px; align-items: center;
-  }
-  .spell-slot {
-    width: 12px; height: 12px;
-    border: 1px solid var(--border2);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .spell-slot.used { background: var(--gold-dim); border-color: var(--gold); }
-  .spell-slot-count {
-    font-size: 9px; color: var(--text2);
-    width: 20px; text-align: center;
-    background: none; border: none;
-    border-bottom: 1px dotted var(--border);
-    outline: none; color: var(--text2);
-    font-family: 'IM Fell English', serif;
-  }
-  .spell-rows { padding: 4px 8px; }
-  .spell-row {
-    display: grid;
-    grid-template-columns: 1fr 60px 40px;
-    gap: 4px;
-    padding: 3px 0;
-    border-bottom: 1px dotted rgba(74,50,24,0.4);
-    align-items: center;
-  }
-  .spell-input {
-    background: none; border: none;
-    border-bottom: 1px dotted transparent;
-    color: var(--text);
-    font-family: 'IM Fell English', serif;
-    font-size: 12px;
-    outline: none; width: 100%;
-  }
-  .spell-input:focus { border-bottom-color: var(--border2); }
-  .spell-prepared {
-    width: 14px; height: 14px;
-    border: 1px solid var(--border2);
-    border-radius: 2px;
-    cursor: pointer;
-    flex-shrink: 0;
-    appearance: none;
-    background: none;
-    position: relative;
-  }
-  .spell-prepared:checked { background: var(--gold-dim); }
-  .spell-prepared:checked::after {
-    content: '✓'; position: absolute;
-    top: -1px; left: 1px;
-    font-size: 10px; color: var(--gold2);
-  }
-
-  /* ── DICE ROLLER ── */
-  #dice-tray {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none;
-    z-index: 100;
-    overflow: hidden;
-  }
-
-  .dice-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(10,6,3,0.85);
-    backdrop-filter: blur(3px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-  }
-  .dice-overlay.rolling {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .roll-result-container {
-    text-align: center;
-    position: relative;
-  }
-
-  .roll-label {
-    font-family: 'IM Fell English SC', serif;
-    font-size: 14px;
-    color: var(--text2);
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-  }
-
-  .dice-animation {
-    display: flex; gap: 10px; justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 16px;
-    min-height: 60px;
-  }
-
-  .die {
-    width: 52px; height: 52px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--gold2);
-    font-family: 'IM Fell English', serif;
-    position: relative;
-    animation: dieRoll 0.6s ease-out forwards;
-  }
-
-  .die svg {
-    position: absolute; width: 100%; height: 100%;
-    filter: drop-shadow(0 0 8px var(--glow));
-  }
-
-  .die-num {
-    position: relative; z-index: 1;
-    font-size: 18px;
-  }
-
-  @keyframes dieRoll {
-    0%   { transform: rotate(-20deg) scale(0.4) translateY(-20px); opacity: 0; }
-    40%  { transform: rotate(10deg)  scale(1.15) translateY(0);    opacity: 1; }
-    70%  { transform: rotate(-5deg)  scale(0.95); }
-    100% { transform: rotate(0deg)   scale(1);    opacity: 1; }
-  }
-
-  .roll-total {
-    font-family: 'UnifrakturMaguntia', cursive;
-    font-size: 72px;
-    color: var(--gold2);
-    text-shadow: 0 0 30px var(--glow), 0 0 60px rgba(201,150,42,0.2);
-    line-height: 1;
-    animation: totalReveal 0.4s 0.5s both;
-  }
-
-  @keyframes totalReveal {
-    from { opacity: 0; transform: scale(0.7); }
-    to   { opacity: 1; transform: scale(1); }
-  }
-
-  .roll-breakdown {
-    font-size: 12px; color: var(--text2);
-    margin-top: 6px;
-    font-style: italic;
-    animation: totalReveal 0.3s 0.7s both;
-  }
-
-  .roll-close {
-    margin-top: 20px;
-    padding: 8px 24px;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 3px;
-    color: var(--gold);
-    font-family: 'IM Fell English SC', serif;
-    font-size: 14px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    animation: totalReveal 0.3s 0.8s both;
-  }
-  .roll-close:hover { background: rgba(201,150,42,0.1); border-color: var(--gold); }
-
-  /* ── Dice Roller Panel ── */
-  .dice-roller-panel { padding: 8px; }
-
-  .preset-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
-    margin-bottom: 10px;
-  }
-
-  .preset-btn {
-    display: flex; flex-direction: column;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 7px 5px;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .preset-btn:hover {
-    border-color: var(--gold);
-    background: rgba(201,150,42,0.07);
-  }
-  .preset-btn:active { transform: scale(0.97); }
-  .preset-btn::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
-  }
-  .preset-name {
-    font-family: 'IM Fell English SC', serif;
-    font-size: 10px;
-    letter-spacing: 0.5px;
-    color: var(--parchment);
-    margin-bottom: 3px;
-  }
-  .preset-formula {
-    font-size: 13px;
-    color: var(--gold2);
-    font-weight: bold;
-    margin-bottom: 2px;
-  }
-  .preset-desc {
-    font-size: 9px;
-    color: var(--text2);
-    font-style: italic;
-  }
-  .preset-edit {
-    position: absolute; top: 3px; right: 3px;
-    background: none; border: none;
-    color: var(--text2); font-size: 9px;
-    cursor: pointer; opacity: 0;
-    transition: opacity 0.15s;
-    padding: 1px;
-  }
-  .preset-btn:hover .preset-edit { opacity: 1; }
-  .preset-edit:hover { color: var(--gold); }
-
-  .preset-delete {
-    position: absolute; top: 3px; left: 3px;
-    background: none; border: none;
-    color: var(--text2); font-size: 9px;
-    cursor: pointer; opacity: 0;
-    transition: opacity 0.15s;
-    padding: 1px;
-  }
-  .preset-btn:hover .preset-delete { opacity: 1; }
-  .preset-delete:hover { color: var(--red2); }
-
-  /* ── Quick Roll ── */
-  .quick-roll-row {
-    display: flex; gap: 4px; flex-wrap: wrap;
-    justify-content: center;
-    margin-bottom: 10px;
-  }
-  .quick-die-btn {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 5px 8px;
-    color: var(--gold);
-    font-family: 'IM Fell English SC', serif;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-  .quick-die-btn:hover {
-    border-color: var(--gold2);
-    background: rgba(201,150,42,0.1);
-    color: var(--gold2);
-  }
-
-  /* ── Add Preset Modal ── */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(10,6,3,0.9);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 200;
-    display: none;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: 4px;
-    padding: 16px;
-    width: 280px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.8);
-  }
-  .modal-title {
-    font-family: 'IM Fell English SC', serif;
-    font-size: 14px;
-    letter-spacing: 1px;
-    color: var(--parchment);
-    margin-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 6px;
-  }
-  .modal-field { margin-bottom: 10px; }
-  .modal-label {
-    display: block;
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--gold-dim);
-    text-transform: uppercase;
-    font-family: 'IM Fell English SC', serif;
-    margin-bottom: 3px;
-  }
-  .modal-input {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 5px 8px;
-    color: var(--text);
-    font-family: 'IM Fell English', serif;
-    font-size: 13px;
-    outline: none;
-  }
-  .modal-input:focus { border-color: var(--gold); }
-  .modal-hint {
-    font-size: 9px; color: var(--text2);
-    font-style: italic; margin-top: 2px;
-  }
-  .modal-actions {
-    display: flex; gap: 6px; justify-content: flex-end;
-    margin-top: 14px;
-  }
-  .btn-cancel {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 5px 12px;
-    color: var(--text2);
-    font-family: 'IM Fell English SC', serif;
-    cursor: pointer;
-  }
-  .btn-confirm {
-    background: rgba(201,150,42,0.15);
-    border: 1px solid var(--gold);
-    border-radius: 2px;
-    padding: 5px 14px;
-    color: var(--gold2);
-    font-family: 'IM Fell English SC', serif;
-    cursor: pointer;
-  }
-  .btn-confirm:hover { background: rgba(201,150,42,0.25); }
-
-  /* ── Roll History ── */
-  .roll-history {
-    border-top: 1px solid var(--border);
-    padding-top: 8px;
-    max-height: 100px;
-    overflow-y: auto;
-  }
-  .history-title {
-    font-size: 9px;
-    letter-spacing: 1px;
-    color: var(--gold-dim);
-    font-family: 'IM Fell English SC', serif;
-    margin-bottom: 4px;
-  }
-  .history-entry {
-    display: flex; justify-content: space-between;
-    padding: 2px 0;
-    border-bottom: 1px dotted rgba(74,50,24,0.3);
-    font-size: 11px;
-  }
-  .history-name { color: var(--text2); }
-  .history-total { color: var(--gold2); font-weight: bold; }
-  .history-detail { color: var(--text2); font-style: italic; font-size: 10px; }
-
-  /* ── Notes ── */
-  .notes-area {
-    width: 100%;
-    min-height: 120px;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 8px;
-    color: var(--text);
-    font-family: 'IM Fell English', Georgia, serif;
-    font-size: 12px;
-    line-height: 1.6;
-    outline: none;
-    resize: vertical;
-  }
-  .notes-area:focus { border-color: var(--border2); }
-
-  /* ── XP / Level tracker ── */
-  .xp-row {
-    display: flex; gap: 8px; padding: 6px 8px;
-    align-items: center;
-  }
-  .xp-label { font-size: 10px; color: var(--text2); width: 30px; }
-  .xp-input {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 3px 6px;
-    color: var(--text);
-    font-family: 'IM Fell English', serif;
-    font-size: 12px;
-    outline: none; width: 80px;
-  }
-  .xp-input:focus { border-color: var(--gold); }
-  .xp-bar {
-    flex: 1; height: 6px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .xp-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold-dim), var(--gold2));
-    border-radius: 3px;
-    transition: width 0.4s;
-  }
-
-  /* ── HP Tracker ── */
-  .hp-row {
-    display: flex; gap: 6px; padding: 6px 8px;
-    align-items: center; justify-content: center;
-  }
-  .hp-box {
-    display: flex; flex-direction: column; align-items: center;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    padding: 5px 10px;
-  }
-  .hp-label { font-size: 8px; color: var(--text2); font-family: 'IM Fell English SC', serif; letter-spacing: 1px; }
-  .hp-input {
-    font-size: 24px;
-    color: var(--red2);
-    background: none; border: none;
-    border-bottom: 1px solid var(--border);
-    text-align: center; width: 50px;
-    outline: none;
-    font-family: 'IM Fell English', serif;
-  }
-  .hp-input:focus { border-bottom-color: var(--red2); }
-  .hp-sep { font-size: 20px; color: var(--border2); align-self: flex-end; padding-bottom: 4px; }
-
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-
-  .add-preset-row {
-    display: flex; justify-content: center;
-    margin-bottom: 8px;
-  }
-  .btn-add-preset {
-    background: rgba(201,150,42,0.08);
-    border: 1px dashed var(--border2);
-    border-radius: 3px;
-    padding: 6px 20px;
-    color: var(--gold-dim);
-    font-family: 'IM Fell English SC', serif;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 1px;
-  }
-  .btn-add-preset:hover {
-    color: var(--gold);
-    border-color: var(--gold);
-    background: rgba(201,150,42,0.12);
-  }
+:root{--parchment:#f4e8c1;--parchment-dark:#e8d59a;--parchment-deep:#d4b87a;--ink:#1c1008;--ink-light:#3d2b1a;--red:#8b1a1a;--gold:#c9a84c;--gold-light:#e8c96a;--shadow:rgba(28,16,8,0.35);--border:#8b6914;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--ink);font-family:'Crimson Text',Georgia,serif;font-size:14px;color:var(--ink);overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+.sheet-header{background:var(--ink);padding:8px 12px 6px;border-bottom:2px solid var(--gold);flex-shrink:0;}
+.header-title{font-family:'IM Fell English',serif;color:var(--gold);font-size:11px;letter-spacing:3px;text-transform:uppercase;opacity:.8;}
+.char-name-row{display:flex;gap:8px;align-items:center;margin-top:4px;}
+.char-name-input{font-family:'IM Fell English',serif;font-size:20px;color:var(--gold-light);background:transparent;border:none;border-bottom:1px solid var(--gold);outline:none;flex:1;padding:2px 4px;}
+.char-name-input::placeholder{color:rgba(201,168,76,.4);}
+.header-meta{display:flex;gap:10px;margin-top:5px;flex-wrap:wrap;}
+.meta-field{display:flex;align-items:center;gap:4px;}
+.meta-label{font-size:10px;color:rgba(201,168,76,.6);text-transform:uppercase;letter-spacing:1px;}
+.meta-input{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:3px;color:var(--gold-light);font-family:'Crimson Text',serif;font-size:13px;padding:1px 5px;width:90px;outline:none;}
+.meta-input:focus{border-color:var(--gold);background:rgba(201,168,76,.12);}
+.meta-input.short{width:50px;}
+.tab-bar{display:flex;background:var(--ink);border-bottom:2px solid var(--gold);flex-shrink:0;overflow-x:auto;}
+.tab-btn{padding:6px 12px;border:none;background:transparent;color:rgba(201,168,76,.5);font-family:'IM Fell English',serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;white-space:nowrap;flex-shrink:0;}
+.tab-btn:hover{color:var(--gold);}
+.tab-btn.active{color:var(--gold-light);border-bottom-color:var(--gold-light);background:rgba(201,168,76,.06);}
+.sheet-body{flex:1;overflow-y:auto;background:var(--parchment);background-image:radial-gradient(ellipse at 20% 80%,rgba(139,105,20,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(139,105,20,.06) 0%,transparent 50%);padding:10px 12px;scrollbar-width:thin;scrollbar-color:var(--parchment-deep) var(--parchment);min-height:0;}
+.sheet-body::-webkit-scrollbar{width:6px;}.sheet-body::-webkit-scrollbar-track{background:var(--parchment);}.sheet-body::-webkit-scrollbar-thumb{background:var(--parchment-deep);border-radius:3px;}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.section-title{font-family:'IM Fell English',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--red);border-bottom:1px solid var(--parchment-deep);padding-bottom:2px;margin:12px 0 8px;}
+.section-title:first-child{margin-top:0;}
+.abilities-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
+.ability-box{background:var(--parchment-dark);border:1px solid var(--border);border-radius:4px;padding:6px 8px 8px;text-align:center;box-shadow:inset 0 1px 2px rgba(255,255,255,.4),0 1px 3px var(--shadow);}
+.ability-name{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-family:'IM Fell English',serif;display:block;}
+.ability-score{font-family:'IM Fell English',serif;font-size:26px;color:var(--ink);font-weight:bold;width:100%;text-align:center;background:transparent;border:none;outline:none;line-height:1.1;}
+.ability-mod{display:flex;align-items:center;gap:3px;justify-content:center;flex-wrap:wrap;}
+.mod-item{font-size:10px;color:var(--ink-light);font-style:italic;}
+.combat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;}
+.stat-box{background:var(--parchment-dark);border:1px solid var(--border);border-radius:4px;padding:5px 6px;text-align:center;box-shadow:inset 0 1px 2px rgba(255,255,255,.4),0 1px 2px var(--shadow);}
+.stat-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);font-family:'IM Fell English',serif;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.stat-val{font-family:'IM Fell English',serif;font-size:20px;color:var(--ink);text-align:center;background:transparent;border:none;outline:none;width:100%;}
+.saves-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.save-box{background:var(--parchment-dark);border:1px solid var(--border);border-radius:4px;padding:4px 4px 6px;text-align:center;}
+.save-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--red);font-family:'IM Fell English',serif;display:block;line-height:1.3;min-height:26px;}
+.save-val{font-family:'IM Fell English',serif;font-size:18px;color:var(--ink);text-align:center;background:transparent;border:none;outline:none;width:100%;}
+.abilities-list{width:100%;border-collapse:collapse;}
+.abilities-list th{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--red);font-family:'IM Fell English',serif;border-bottom:1px solid var(--border);padding:3px 6px;text-align:left;}
+.abilities-list td{padding:3px 6px;border-bottom:1px solid rgba(139,105,20,.2);font-size:12px;}
+.abilities-list tr:last-child td{border-bottom:none;}
+.abilities-list td input{background:transparent;border:none;outline:none;width:100%;font-family:'Crimson Text',serif;font-size:12px;color:var(--ink);}
+.abilities-list .score-cell input{width:40px;text-align:center;font-family:'IM Fell English',serif;font-size:14px;}
+.add-row-btn{background:none;border:1px dashed var(--border);color:var(--ink-light);font-family:'IM Fell English',serif;font-size:11px;letter-spacing:1px;padding:4px 10px;cursor:pointer;border-radius:3px;margin-top:6px;opacity:.7;transition:opacity .2s;}
+.add-row-btn:hover{opacity:1;}
+.lang-box,.notes-area{background:var(--parchment-dark);border:1px solid var(--border);border-radius:4px;padding:8px 10px;font-size:13px;color:var(--ink);outline:none;width:100%;font-family:'Crimson Text',serif;resize:vertical;line-height:1.5;box-shadow:inset 0 1px 3px var(--shadow);}
+.lang-box{min-height:48px;}.notes-area{min-height:70px;}
+.lang-box:focus,.notes-area:focus{border-color:var(--gold);}
+/* INVENTORY — weapon/armor rows have extra "Range" col; equipment same as before */
+.inv-hdr-weapon{display:grid;grid-template-columns:2.5fr 0.8fr 0.8fr 0.8fr 0.8fr 28px;gap:3px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);font-family:'IM Fell English',serif;padding:0 4px 4px;border-bottom:1px solid var(--border);}
+.inv-row-weapon{display:grid;grid-template-columns:2.5fr 0.8fr 0.8fr 0.8fr 0.8fr 28px;gap:3px;align-items:center;padding:3px 4px;border-bottom:1px solid rgba(139,105,20,.15);}
+.inv-hdr-armor{display:grid;grid-template-columns:2.5fr 0.8fr 0.8fr 0.8fr 28px;gap:3px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);font-family:'IM Fell English',serif;padding:0 4px 4px;border-bottom:1px solid var(--border);}
+.inv-row-armor{display:grid;grid-template-columns:2.5fr 0.8fr 0.8fr 0.8fr 28px;gap:3px;align-items:center;padding:3px 4px;border-bottom:1px solid rgba(139,105,20,.15);}
+.inv-hdr-equip{display:grid;grid-template-columns:3fr 1fr 1fr 1fr 28px;gap:3px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);font-family:'IM Fell English',serif;padding:0 4px 4px;border-bottom:1px solid var(--border);}
+.inv-row-equip{display:grid;grid-template-columns:3fr 1fr 1fr 1fr 28px;gap:3px;align-items:center;padding:3px 4px;border-bottom:1px solid rgba(139,105,20,.15);}
+.inv-row-weapon input,.inv-row-armor input,.inv-row-equip input{background:transparent;border:none;outline:none;font-family:'Crimson Text',serif;font-size:12px;color:var(--ink);width:100%;}
+.inv-row-weapon input[type=number],.inv-row-armor input[type=number],.inv-row-equip input[type=number]{text-align:center;}
+.del-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;opacity:.5;transition:opacity .2s;padding:0;text-align:center;}
+.del-btn:hover{opacity:1;}
+.enc-bar{display:flex;align-items:center;gap:10px;margin-top:10px;padding:6px 10px;background:var(--parchment-dark);border:1px solid var(--border);border-radius:4px;}
+.enc-label{font-size:11px;color:var(--ink-light);font-style:italic;}
+.enc-val{font-family:'IM Fell English',serif;font-size:16px;color:var(--ink);}
+.spell-level-header{display:flex;align-items:center;gap:8px;margin:10px 0 5px;}
+.spell-level-title{font-family:'IM Fell English',serif;font-size:13px;color:var(--red);letter-spacing:1px;}
+.spell-slots{display:flex;gap:4px;}
+.slot-pip{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border);cursor:pointer;background:var(--parchment);transition:background .15s;}
+.slot-pip.used{background:var(--red);border-color:var(--red);}
+.spell-row{display:grid;grid-template-columns:1fr 80px 30px;gap:4px;align-items:center;padding:3px 4px;border-bottom:1px solid rgba(139,105,20,.15);}
+.spell-row input{background:transparent;border:none;outline:none;font-family:'Crimson Text',serif;font-size:12px;color:var(--ink);width:100%;}
+.slot-count-input{width:30px;text-align:center;font-family:'IM Fell English',serif;font-size:12px;background:rgba(139,105,20,.1);border:1px solid var(--border);border-radius:3px;color:var(--ink);outline:none;padding:1px 3px;}
+/* NOTES TAB sub-tabs */
+.notes-tabbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:8px;border-bottom:1px solid var(--parchment-deep);padding-bottom:6px;}
+.notes-tab-btn{background:none;border:1px solid rgba(139,105,20,.3);border-radius:3px;color:var(--ink-light);font-family:'IM Fell English',serif;font-size:11px;letter-spacing:1px;padding:3px 8px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;}
+.notes-tab-btn.active{background:var(--parchment-dark);border-color:var(--border);color:var(--ink);}
+.notes-tab-btn:hover{border-color:var(--border);color:var(--ink);}
+.notes-tab-name{outline:none;background:transparent;border:none;font-family:'IM Fell English',serif;font-size:11px;letter-spacing:1px;color:inherit;min-width:30px;max-width:90px;cursor:text;}
+.notes-tab-del{color:rgba(139,105,20,.5);font-size:13px;line-height:1;display:none;cursor:pointer;}
+.notes-tab-btn:hover .notes-tab-del{display:inline;}
+.new-page-btn{background:none;border:1px dashed rgba(139,105,20,.4);border-radius:3px;color:rgba(139,105,20,.6);font-family:'IM Fell English',serif;font-size:11px;padding:3px 8px;cursor:pointer;letter-spacing:1px;transition:all .2s;flex-shrink:0;}
+.new-page-btn:hover{border-color:var(--border);color:var(--ink);}
+.notes-page{display:none;}.notes-page.active{display:block;}
+.big-notes{background:var(--parchment-dark);border:1px solid var(--border);border-radius:4px;padding:10px;font-size:13px;color:var(--ink);outline:none;width:100%;font-family:'Crimson Text',serif;resize:none;line-height:1.6;box-shadow:inset 0 1px 3px var(--shadow);height:calc(100% - 10px);min-height:300px;}
+.big-notes:focus{border-color:var(--gold);}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.quick-rolls{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.quick-roll-btn{background:rgba(139,26,26,.08);border:1px solid rgba(139,26,26,.25);border-radius:3px;color:var(--red);font-family:'IM Fell English',serif;font-size:10px;letter-spacing:.5px;padding:2px 7px;cursor:pointer;transition:all .15s;}
+.quick-roll-btn:hover{background:rgba(139,26,26,.15);border-color:var(--red);}
+/* DICE DOCK */
+.dice-dock{background:var(--ink);border-top:2px solid var(--gold);padding:6px 10px 5px;flex-shrink:0;}
+.dice-dock-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.dice-dock-title{font-family:'IM Fell English',serif;font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;flex-shrink:0;}
+.vis-btns{display:flex;gap:3px;}
+.vis-btn{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.25);border-radius:3px;color:rgba(201,168,76,.5);font-family:'IM Fell English',serif;font-size:10px;letter-spacing:1px;padding:2px 8px;cursor:pointer;transition:all .18s;}
+.vis-btn.active{background:rgba(201,168,76,.18);border-color:var(--gold);color:var(--gold-light);}
+.vis-btn:hover{border-color:var(--gold);color:var(--gold);}
+.dice-presets-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px;}
+.preset-chip{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:20px;color:var(--gold-light);font-family:'IM Fell English',serif;font-size:12px;padding:3px 10px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;}
+.preset-chip:hover{background:rgba(201,168,76,.2);border-color:var(--gold);transform:translateY(-1px);}
+.preset-chip .chip-del{color:rgba(201,168,76,.4);font-size:14px;line-height:1;display:none;}
+.preset-chip:hover .chip-del{display:inline;}
+/* +/- toggle button — far right */
+.toggle-builder-btn{background:none;border:1px solid rgba(201,168,76,.3);border-radius:4px;color:rgba(201,168,76,.6);font-family:'IM Fell English',serif;font-size:14px;line-height:1;padding:2px 8px;cursor:pointer;transition:all .2s;margin-left:auto;flex-shrink:0;}
+.toggle-builder-btn:hover{border-color:var(--gold);color:var(--gold);}
+.toggle-builder-btn.open{color:var(--gold-light);border-color:var(--gold);}
+.dice-icons-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;}
+.die-icon-btn{position:relative;width:40px;height:40px;cursor:pointer;transition:transform .15s;user-select:none;flex-shrink:0;}
+.die-icon-btn:hover{transform:scale(1.18) rotate(-6deg);}
+.die-icon-btn svg{width:40px;height:40px;display:block;}
+.die-icon-btn .die-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IM Fell English',serif;font-size:9px;color:rgba(28,16,8,.85);pointer-events:none;font-weight:bold;padding-top:2px;}
+.die-icon-btn .die-count-badge{position:absolute;top:-5px;right:-5px;background:var(--red);color:var(--parchment);font-family:'IM Fell English',serif;font-size:10px;border-radius:50%;width:16px;height:16px;display:none;align-items:center;justify-content:center;pointer-events:none;}
+.die-icon-btn.selected .die-count-badge{display:flex;}
+.die-icon-btn.selected svg .die-fill{fill:var(--gold)!important;}
+.dice-expanded{display:none;padding-top:5px;border-top:1px solid rgba(201,168,76,.15);}
+.dice-expanded.open{display:block;}
+/* Builder row — new order: Name | [Atk d20] btn | Atk Mod | gap | Dmg Mod | Roll | Save | Clear */
+.dice-builder{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.dice-builder label{font-size:10px;color:rgba(201,168,76,.6);letter-spacing:1px;text-transform:uppercase;}
+.builder-input{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:3px;color:var(--gold-light);font-family:'IM Fell English',serif;font-size:13px;padding:3px 6px;outline:none;}
+.builder-input:focus{border-color:var(--gold);}
+.atk-d20-btn{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.3);border-radius:4px;color:rgba(201,168,76,.6);font-family:'IM Fell English',serif;font-size:11px;letter-spacing:.5px;padding:4px 9px;cursor:pointer;transition:all .2s;}
+.atk-d20-btn.on{background:rgba(139,26,26,.2);border-color:var(--red);color:#e8a0a0;}
+.atk-d20-btn:hover{border-color:var(--gold);color:var(--gold-light);}
+.builder-sep{width:1px;height:20px;background:rgba(201,168,76,.2);flex-shrink:0;margin:0 2px;}
+.builder-roll-btn{background:var(--red);border:none;border-radius:4px;color:var(--parchment);font-family:'IM Fell English',serif;font-size:12px;letter-spacing:1px;padding:5px 12px;cursor:pointer;transition:all .2s;}
+.builder-roll-btn:hover{background:#a52020;transform:translateY(-1px);}
+.save-preset-btn{background:none;border:1px solid rgba(201,168,76,.3);border-radius:4px;color:rgba(201,168,76,.7);font-family:'IM Fell English',serif;font-size:11px;letter-spacing:1px;padding:4px 10px;cursor:pointer;transition:all .2s;}
+.save-preset-btn:hover{border-color:var(--gold);color:var(--gold);}
+.clear-btn{background:none;border:1px solid rgba(201,168,76,.2);border-radius:4px;color:rgba(201,168,76,.4);font-family:'IM Fell English',serif;font-size:11px;padding:4px 8px;cursor:pointer;transition:all .2s;}
+.clear-btn:hover{border-color:rgba(201,168,76,.5);color:rgba(201,168,76,.7);}
+.roll-log-wrap{background:rgba(0,0,0,.45);border-top:1px solid rgba(201,168,76,.2);flex-shrink:0;height:100px;overflow-y:auto;padding:4px 10px;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.2) transparent;}
+.roll-log-wrap::-webkit-scrollbar{width:4px;}.roll-log-wrap::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);border-radius:2px;}
+.log-header-row{font-size:9px;color:rgba(201,168,76,.3);letter-spacing:2px;text-transform:uppercase;padding-bottom:3px;position:sticky;top:0;background:rgba(0,0,0,.45);}
+.log-entry{padding:2px 0;border-bottom:1px solid rgba(201,168,76,.07);line-height:1.4;}
+.log-entry:last-child{border-bottom:none;}
+.log-who{font-family:'IM Fell English',serif;color:var(--gold-light);font-size:11px;}
+.log-type{color:rgba(201,168,76,.7);font-size:11px;font-style:italic;}
+.log-formula{color:rgba(201,168,76,.5);font-size:11px;}
+.log-result{color:var(--gold-light);font-size:11px;font-family:'IM Fell English',serif;}
+.log-vis-badge{font-size:9px;letter-spacing:1px;border-radius:3px;padding:1px 4px;margin-left:4px;}
+.log-vis-badge.public{background:rgba(50,120,50,.3);color:#8fc;}
+.log-vis-badge.private{background:rgba(100,50,150,.3);color:#caf;}
+.log-vis-badge.gm{background:rgba(139,26,26,.3);color:#faa;}
+/* OVERLAY */
+#dice-overlay{position:fixed;inset:0;z-index:1000;pointer-events:none;background:rgba(0,0,0,0);transition:background .25s;}
+#dice-overlay.rolling{pointer-events:all;background:rgba(0,0,0,.55);}
+#dice-tray{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.phy-die{position:absolute;display:flex;align-items:center;justify-content:center;font-family:'IM Fell English',serif;font-weight:bold;cursor:default;user-select:none;}
+/* Result card */
+.dice-result-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.5);opacity:0;background:var(--ink);border:2px solid var(--gold);border-radius:8px;padding:16px 24px;text-align:center;transition:all .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 40px rgba(0,0,0,.8),0 0 60px rgba(201,168,76,.12);min-width:180px;max-width:340px;z-index:10;}
+#dice-overlay.rolling .dice-result-card{transform:translate(-50%,-50%) scale(1);opacity:1;}
+.result-formula{font-family:'IM Fell English',serif;font-size:12px;color:rgba(201,168,76,.6);letter-spacing:2px;margin-bottom:4px;}
+.result-block{margin-bottom:6px;}
+.result-block-label{font-size:10px;color:rgba(201,168,76,.5);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+/* Die silhouette faces in result card */
+.result-dice-row{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin:6px 0;min-height:36px;}
+.die-sil{display:inline-flex;align-items:center;justify-content:center;position:relative;animation:rollIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+.die-sil svg{display:block;}
+.die-sil .sil-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'IM Fell English',serif;font-size:13px;font-weight:bold;pointer-events:none;}
+@keyframes rollIn{from{transform:rotate(-180deg) scale(0);opacity:0;}to{transform:rotate(0) scale(1);opacity:1;}}
+.result-total{font-family:'IM Fell English',serif;font-size:44px;color:var(--gold-light);line-height:1;text-shadow:0 0 20px rgba(201,168,76,.4);}
+.result-modifier{font-size:12px;color:rgba(201,168,76,.5);font-family:'Crimson Text',serif;font-style:italic;margin-top:1px;}
+.result-sep{border:none;border-top:1px solid rgba(201,168,76,.2);margin:8px 0;}
+.result-dismiss{margin-top:10px;background:none;border:1px solid rgba(201,168,76,.3);border-radius:4px;color:rgba(201,168,76,.6);font-family:'IM Fell English',serif;font-size:11px;letter-spacing:1px;padding:4px 16px;cursor:pointer;transition:all .2s;}
+.result-dismiss:hover{border-color:var(--gold);color:var(--gold);}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+input[type=number]{-moz-appearance:textfield;}
 </style>
 </head>
 <body>
-<div id="app">
-  <!-- Header -->
-  <div id="header">
-    <div class="header-top">
-      <div class="header-title">⚔ OSE Advanced</div>
-    </div>
-    <div class="char-identity">
-      <div class="id-field">
-        <div class="id-label">Character Name</div>
-        <input class="id-input" id="charName" type="text" placeholder="Aldric the Bold" data-save="charName"/>
-      </div>
-      <div class="id-field">
-        <div class="id-label">Class</div>
-        <input class="id-input" id="charClass" type="text" placeholder="Fighter" data-save="charClass"/>
-      </div>
-      <div class="id-field">
-        <div class="id-label">Race</div>
-        <input class="id-input" id="charRace" type="text" placeholder="Human" data-save="charRace"/>
-      </div>
-      <div class="id-field">
-        <div class="id-label">Level</div>
-        <input class="id-input" id="charLevel" type="number" placeholder="1" min="1" max="20" data-save="charLevel"/>
-      </div>
-    </div>
+<!-- HEADER -->
+<div class="sheet-header">
+  <div class="header-title">Old-School Essentials · Advanced Fantasy</div>
+  <div class="char-name-row"><input class="char-name-input" id="charName" placeholder="Character Name" autocomplete="off"/></div>
+  <div class="header-meta">
+    <div class="meta-field"><span class="meta-label">Class</span><input class="meta-input" id="charClass" placeholder="Magic-User"/></div>
+    <div class="meta-field"><span class="meta-label">Race</span><input class="meta-input short" id="charRace" placeholder="Elf"/></div>
+    <div class="meta-field"><span class="meta-label">Lvl</span><input class="meta-input short" id="charLevel" type="number" placeholder="1"/></div>
+    <div class="meta-field"><span class="meta-label">Align</span><input class="meta-input short" id="charAlign" placeholder="N"/></div>
+    <div class="meta-field"><span class="meta-label">XP</span><input class="meta-input" id="charXP" type="number" placeholder="0"/></div>
   </div>
+</div>
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('stats')">Stats</button>
+  <button class="tab-btn" onclick="switchTab('abilities')">Abilities</button>
+  <button class="tab-btn" onclick="switchTab('inventory')">Inventory</button>
+  <button class="tab-btn" onclick="switchTab('spells')">Spells</button>
+  <button class="tab-btn" onclick="switchTab('notes')">Notes</button>
+</div>
+<div class="sheet-body">
 
-  <!-- Tabs -->
-  <div id="tabs">
-    <button class="tab-btn active" data-tab="main">Character</button>
-    <button class="tab-btn" data-tab="inventory">Inventory</button>
-    <button class="tab-btn" data-tab="spells">Spells</button>
-    <button class="tab-btn" data-tab="dice">Dice</button>
+<!-- STATS TAB — no Languages section -->
+<div class="tab-panel active" id="panel-stats">
+  <div class="section-title">Ability Scores</div>
+  <div class="abilities-grid">
+    <div class="ability-box"><span class="ability-name">STR</span><input class="ability-score" type="number" id="s-str" min="3" max="18" placeholder="—" oninput="calcMods()"/><div class="ability-mod" id="m-str"></div></div>
+    <div class="ability-box"><span class="ability-name">INT</span><input class="ability-score" type="number" id="s-int" min="3" max="18" placeholder="—" oninput="calcMods()"/><div class="ability-mod" id="m-int"></div></div>
+    <div class="ability-box"><span class="ability-name">WIS</span><input class="ability-score" type="number" id="s-wis" min="3" max="18" placeholder="—" oninput="calcMods()"/><div class="ability-mod" id="m-wis"></div></div>
+    <div class="ability-box"><span class="ability-name">DEX</span><input class="ability-score" type="number" id="s-dex" min="3" max="18" placeholder="—" oninput="calcMods()"/><div class="ability-mod" id="m-dex"></div></div>
+    <div class="ability-box"><span class="ability-name">CON</span><input class="ability-score" type="number" id="s-con" min="3" max="18" placeholder="—" oninput="calcMods()"/><div class="ability-mod" id="m-con"></div></div>
+    <div class="ability-box"><span class="ability-name">CHA</span><input class="ability-score" type="number" id="s-cha" min="3" max="18" placeholder="—" oninput="calcMods()"/><div class="ability-mod" id="m-cha"></div></div>
   </div>
-
-  <!-- Content -->
-  <div id="content">
-
-    <!-- ═══════ MAIN TAB ═══════ -->
-    <div class="tab-panel active" id="tab-main">
-
-      <!-- HP -->
-      <div class="section">
-        <div class="section-title">Hit Points &amp; Armour</div>
-        <div class="hp-row">
-          <div class="hp-box">
-            <div class="hp-label">Current HP</div>
-            <input class="hp-input" type="number" id="hpCurrent" data-save="hpCurrent" placeholder="8"/>
-          </div>
-          <div class="hp-sep">/</div>
-          <div class="hp-box">
-            <div class="hp-label">Max HP</div>
-            <input class="hp-input" type="number" id="hpMax" data-save="hpMax" placeholder="8"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ability Scores -->
-      <div class="section">
-        <div class="section-title">Ability Scores</div>
-        <div class="stat-grid">
-          <div class="stat-box" onclick="rollStat('STR')">
-            <span class="stat-roll-hint">roll</span>
-            <div class="stat-abbr">STR</div>
-            <input class="stat-val" type="number" min="3" max="18" id="stat-STR" data-save="stat-STR" placeholder="10" oninput="updateMods()"/>
-            <div class="stat-mod" id="mod-STR"></div>
-            <div class="stat-sub" id="sub-STR"></div>
-          </div>
-          <div class="stat-box" onclick="rollStat('INT')">
-            <span class="stat-roll-hint">roll</span>
-            <div class="stat-abbr">INT</div>
-            <input class="stat-val" type="number" min="3" max="18" id="stat-INT" data-save="stat-INT" placeholder="10" oninput="updateMods()"/>
-            <div class="stat-mod" id="mod-INT"></div>
-            <div class="stat-sub" id="sub-INT"></div>
-          </div>
-          <div class="stat-box" onclick="rollStat('WIS')">
-            <span class="stat-roll-hint">roll</span>
-            <div class="stat-abbr">WIS</div>
-            <input class="stat-val" type="number" min="3" max="18" id="stat-WIS" data-save="stat-WIS" placeholder="10" oninput="updateMods()"/>
-            <div class="stat-mod" id="mod-WIS"></div>
-            <div class="stat-sub" id="sub-WIS"></div>
-          </div>
-          <div class="stat-box" onclick="rollStat('DEX')">
-            <span class="stat-roll-hint">roll</span>
-            <div class="stat-abbr">DEX</div>
-            <input class="stat-val" type="number" min="3" max="18" id="stat-DEX" data-save="stat-DEX" placeholder="10" oninput="updateMods()"/>
-            <div class="stat-mod" id="mod-DEX"></div>
-            <div class="stat-sub" id="sub-DEX"></div>
-          </div>
-          <div class="stat-box" onclick="rollStat('CON')">
-            <span class="stat-roll-hint">roll</span>
-            <div class="stat-abbr">CON</div>
-            <input class="stat-val" type="number" min="3" max="18" id="stat-CON" data-save="stat-CON" placeholder="10" oninput="updateMods()"/>
-            <div class="stat-mod" id="mod-CON"></div>
-            <div class="stat-sub" id="sub-CON"></div>
-          </div>
-          <div class="stat-box" onclick="rollStat('CHA')">
-            <span class="stat-roll-hint">roll</span>
-            <div class="stat-abbr">CHA</div>
-            <input class="stat-val" type="number" min="3" max="18" id="stat-CHA" data-save="stat-CHA" placeholder="10" oninput="updateMods()"/>
-            <div class="stat-mod" id="mod-CHA"></div>
-            <div class="stat-sub" id="sub-CHA"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Combat Stats -->
-      <div class="section">
-        <div class="section-title">Combat</div>
-        <div class="combat-grid">
-          <div class="combat-box">
-            <div class="combat-label">Armour Class</div>
-            <input class="combat-val" type="number" id="ac" data-save="ac" placeholder="9"/>
-          </div>
-          <div class="combat-box">
-            <div class="combat-label">Attack Bonus</div>
-            <input class="combat-val" type="text" id="thac0" data-save="thac0" placeholder="+0"/>
-          </div>
-          <div class="combat-box">
-            <div class="combat-label">Initiative</div>
-            <input class="combat-val" type="text" id="initiative" data-save="initiative" placeholder="+0"/>
-          </div>
-          <div class="combat-box">
-            <div class="combat-label">Movement</div>
-            <input class="combat-val" type="text" id="movement" data-save="movement" placeholder="120'"/>
-          </div>
-          <div class="combat-box">
-            <div class="combat-label">Alignment</div>
-            <input class="combat-val" type="text" id="alignment" data-save="alignment" placeholder="N" style="width:50px"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- Saving Throws -->
-      <div class="section">
-        <div class="section-title">Saving Throws</div>
-        <div class="save-grid">
-          <div class="save-box" onclick="rollSave('Death')">
-            <div class="save-label">Death / Poison</div>
-            <input class="save-val" type="number" id="save-death" data-save="save-death" placeholder="14" onclick="event.stopPropagation()"/>
-          </div>
-          <div class="save-box" onclick="rollSave('Wands')">
-            <div class="save-label">Wands</div>
-            <input class="save-val" type="number" id="save-wands" data-save="save-wands" placeholder="15" onclick="event.stopPropagation()"/>
-          </div>
-          <div class="save-box" onclick="rollSave('Paralysis')">
-            <div class="save-label">Paralysis / Petrify</div>
-            <input class="save-val" type="number" id="save-para" data-save="save-para" placeholder="16" onclick="event.stopPropagation()"/>
-          </div>
-          <div class="save-box" onclick="rollSave('Breath')">
-            <div class="save-label">Breath Attacks</div>
-            <input class="save-val" type="number" id="save-breath" data-save="save-breath" placeholder="17" onclick="event.stopPropagation()"/>
-          </div>
-          <div class="save-box" onclick="rollSave('Spells')">
-            <div class="save-label">Spells / Rods / Staves</div>
-            <input class="save-val" type="number" id="save-spells" data-save="save-spells" placeholder="18" onclick="event.stopPropagation()"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- Class Abilities -->
-      <div class="section">
-        <div class="section-title">Class Abilities &amp; Racial Traits</div>
-        <div class="ability-grid">
-          <div class="ability-row">
-            <span class="ability-name">Open Doors</span>
-            <input class="ability-val" type="text" data-save="ab-doors" placeholder="2-in-6"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Hear Noise</span>
-            <input class="ability-val" type="text" data-save="ab-hear" placeholder="2-in-6"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Find Secret Doors</span>
-            <input class="ability-val" type="text" data-save="ab-secret" placeholder="1-in-6"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Surprise Chance</span>
-            <input class="ability-val" type="text" data-save="ab-surprise" placeholder="1-in-6"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Climb Sheer Surfaces</span>
-            <input class="ability-val" type="text" data-save="ab-climb" placeholder="—"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Hide in Shadows</span>
-            <input class="ability-val" type="text" data-save="ab-hide" placeholder="—"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Move Silently</span>
-            <input class="ability-val" type="text" data-save="ab-silent" placeholder="—"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Pick Pockets</span>
-            <input class="ability-val" type="text" data-save="ab-pick" placeholder="—"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Pick Locks</span>
-            <input class="ability-val" type="text" data-save="ab-locks" placeholder="—"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Remove Traps</span>
-            <input class="ability-val" type="text" data-save="ab-traps" placeholder="—"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Infravision</span>
-            <input class="ability-val" type="text" data-save="ab-infra" placeholder="—"/>
-          </div>
-          <div class="ability-row">
-            <span class="ability-name">Back Attack</span>
-            <input class="ability-val" type="text" data-save="ab-back" placeholder="—"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- Languages -->
-      <div class="section">
-        <div class="section-title">Languages</div>
-        <div class="languages-box">
-          <div class="lang-list" id="langList"></div>
-          <div class="lang-add">
-            <input class="lang-input" id="langInput" type="text" placeholder="Add a language…" onkeydown="if(event.key==='Enter') addLanguage()"/>
-            <button class="btn-small" onclick="addLanguage()">+ Add</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- XP -->
-      <div class="section">
-        <div class="section-title">Experience Points</div>
-        <div class="xp-row">
-          <span class="xp-label">XP</span>
-          <input class="xp-input" type="number" id="xpCurrent" data-save="xpCurrent" placeholder="0" oninput="updateXP()"/>
-          <div class="xp-bar"><div class="xp-fill" id="xpFill" style="width:0%"></div></div>
-          <input class="xp-input" type="number" id="xpNext" data-save="xpNext" placeholder="2000" oninput="updateXP()" style="width:70px"/>
-        </div>
-      </div>
-
-      <!-- Notes -->
-      <div class="section">
-        <div class="section-title">Notes &amp; Special Abilities</div>
-        <div style="padding:8px">
-          <textarea class="notes-area" data-save="notes" placeholder="Record special abilities, backstory, or any other notes here…"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════ INVENTORY TAB ═══════ -->
-    <div class="tab-panel" id="tab-inventory">
-      <!-- Gold -->
-      <div class="section">
-        <div class="section-title">Treasure</div>
-        <div class="ability-grid" style="grid-template-columns: repeat(4,1fr);">
-          <div class="ability-row" style="flex-direction:column;gap:2px;align-items:center;padding:6px;">
-            <span class="ability-name" style="width:auto;font-size:9px;color:var(--gold-dim)">Gold (gp)</span>
-            <input class="ability-val" type="number" data-save="gold-gp" placeholder="0" style="width:60px;font-size:16px;color:var(--gold2)"/>
-          </div>
-          <div class="ability-row" style="flex-direction:column;gap:2px;align-items:center;padding:6px;">
-            <span class="ability-name" style="width:auto;font-size:9px;color:var(--text2)">Silver (sp)</span>
-            <input class="ability-val" type="number" data-save="gold-sp" placeholder="0" style="width:60px;font-size:16px"/>
-          </div>
-          <div class="ability-row" style="flex-direction:column;gap:2px;align-items:center;padding:6px;">
-            <span class="ability-name" style="width:auto;font-size:9px;color:var(--text2)">Electrum (ep)</span>
-            <input class="ability-val" type="number" data-save="gold-ep" placeholder="0" style="width:60px;font-size:16px"/>
-          </div>
-          <div class="ability-row" style="flex-direction:column;gap:2px;align-items:center;padding:6px;">
-            <span class="ability-name" style="width:auto;font-size:9px;color:var(--text2)">Copper (cp)</span>
-            <input class="ability-val" type="number" data-save="gold-cp" placeholder="0" style="width:60px;font-size:16px"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- Equipment -->
-      <div class="section">
-        <div class="section-title">Equipment &amp; Weapons</div>
-        <div class="inventory-header">
-          <span>Item</span><span>Weight</span><span>Notes</span><span></span>
-        </div>
-        <div id="inventoryRows"></div>
-        <div class="inv-footer">
-          <span class="enc-text" id="encText">0 / 80 cn</span>
-          <div class="encumbrance-bar"><div class="encumbrance-fill" id="encFill" style="width:0%"></div></div>
-          <button class="btn-small" onclick="addInvRow()">+ Item</button>
-        </div>
-      </div>
-
-      <!-- Carried Money weight note -->
-      <div class="section">
-        <div class="section-title">Encumbrance Notes</div>
-        <div style="padding:8px">
-          <textarea class="notes-area" data-save="enc-notes" style="min-height:70px" placeholder="Encumbrance cap, special containers, mounts, retainers carrying gear…"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════ SPELLS TAB ═══════ -->
-    <div class="tab-panel" id="tab-spells">
-      <div class="section">
-        <div class="section-title">Spellcasting</div>
-        <div style="padding:6px 8px;display:flex;gap:8px;align-items:center">
-          <span style="font-size:10px;color:var(--text2)">Spell Type:</span>
-          <select data-save="spellType" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:2px 6px;font-family:'IM Fell English',serif;font-size:12px;outline:none;border-radius:2px;">
-            <option value="">— None —</option>
-            <option value="mage">Magic-User / Illusionist</option>
-            <option value="cleric">Cleric / Druid</option>
-          </select>
-          <span style="font-size:10px;color:var(--text2)">Spellbook:</span>
-          <input type="text" data-save="spellbook" placeholder="Tome of Shadows" style="background:none;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:'IM Fell English',serif;font-size:12px;outline:none;flex:1"/>
-        </div>
-      </div>
-      <div id="spellLevels"></div>
-    </div>
-
-    <!-- ═══════ DICE TAB ═══════ -->
-    <div class="tab-panel" id="tab-dice">
-      <div class="section">
-        <div class="section-title">Quick Roll</div>
-        <div class="dice-roller-panel" style="padding-bottom:4px">
-          <div class="quick-roll-row">
-            <button class="quick-die-btn" onclick="quickRoll(4)">d4</button>
-            <button class="quick-die-btn" onclick="quickRoll(6)">d6</button>
-            <button class="quick-die-btn" onclick="quickRoll(8)">d8</button>
-            <button class="quick-die-btn" onclick="quickRoll(10)">d10</button>
-            <button class="quick-die-btn" onclick="quickRoll(12)">d12</button>
-            <button class="quick-die-btn" onclick="quickRoll(20)">d20</button>
-            <button class="quick-die-btn" onclick="quickRoll(100)">d%</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Preset Rolls</div>
-        <div class="dice-roller-panel">
-          <div class="preset-grid" id="presetGrid"></div>
-          <div class="add-preset-row">
-            <button class="btn-add-preset" onclick="openPresetModal()">+ Add Preset Roll</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Roll History</div>
-        <div class="dice-roller-panel" style="padding-top:4px">
-          <div class="roll-history">
-            <div id="rollHistory"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /content -->
-</div><!-- /app -->
-
-<!-- Dice Overlay -->
-<div id="diceTray">
-  <div class="dice-overlay" id="diceOverlay">
-    <div class="roll-result-container">
-      <div class="roll-label" id="rollLabel">Rolling…</div>
-      <div class="dice-animation" id="diceAnimation"></div>
-      <div class="roll-total" id="rollTotal">—</div>
-      <div class="roll-breakdown" id="rollBreakdown"></div>
-      <button class="roll-close" onclick="closeRoll()">Dismiss</button>
-    </div>
+  <div class="quick-rolls">
+    <span style="font-size:10px;color:var(--ink-light);font-style:italic;">Quick roll:</span>
+    <button class="quick-roll-btn" onclick="rollCheck('STR')">STR</button>
+    <button class="quick-roll-btn" onclick="rollCheck('INT')">INT</button>
+    <button class="quick-roll-btn" onclick="rollCheck('WIS')">WIS</button>
+    <button class="quick-roll-btn" onclick="rollCheck('DEX')">DEX</button>
+    <button class="quick-roll-btn" onclick="rollCheck('CON')">CON</button>
+    <button class="quick-roll-btn" onclick="rollCheck('CHA')">CHA</button>
+    <button class="quick-roll-btn" onclick="rollGeneric([{n:4,s:6}],0,'Roll Ability (4d6kh3)')">4d6kh3</button>
+  </div>
+  <div class="section-title" style="margin-top:14px;">Combat</div>
+  <div class="combat-row">
+    <div class="stat-box"><span class="stat-label">HP (Max)</span><input class="stat-val" type="number" id="hpMax" placeholder="—"/></div>
+    <div class="stat-box"><span class="stat-label">HP (Cur)</span><input class="stat-val" type="number" id="hpCur" placeholder="—"/></div>
+    <div class="stat-box"><span class="stat-label">AC</span><input class="stat-val" type="number" id="armorClass" placeholder="—"/></div>
+    <div class="stat-box"><span class="stat-label">Init Mod</span><input class="stat-val" type="text" id="initMod" placeholder="+0"/></div>
+  </div>
+  <div class="combat-row">
+    <div class="stat-box"><span class="stat-label">Attack</span><input class="stat-val" type="text" id="attackBonus" placeholder="—"/></div>
+    <div class="stat-box"><span class="stat-label">Damage</span><input class="stat-val" type="text" id="damageBonus" placeholder="—"/></div>
+    <div class="stat-box"><span class="stat-label">Move</span><input class="stat-val" type="text" id="moveRate" placeholder="120'"/></div>
+    <div class="stat-box"><span class="stat-label">Thac0</span><input class="stat-val" type="number" id="thac0" placeholder="19"/></div>
+  </div>
+  <div class="section-title">Saving Throws</div>
+  <div class="saves-grid">
+    <div class="save-box"><span class="save-label">Death / Poison</span><input class="save-val" type="number" id="sv-dp" placeholder="—"/></div>
+    <div class="save-box"><span class="save-label">Wands</span><input class="save-val" type="number" id="sv-w" placeholder="—"/></div>
+    <div class="save-box"><span class="save-label">Paralysis / Stone</span><input class="save-val" type="number" id="sv-ps" placeholder="—"/></div>
+    <div class="save-box"><span class="save-label">Breath</span><input class="save-val" type="number" id="sv-b" placeholder="—"/></div>
+    <div class="save-box"><span class="save-label">Spells / Rods</span><input class="save-val" type="number" id="sv-sr" placeholder="—"/></div>
+  </div>
+  <div class="quick-rolls" style="margin-top:6px;">
+    <span style="font-size:10px;color:var(--ink-light);font-style:italic;">Save:</span>
+    <button class="quick-roll-btn" onclick="rollSave('Death/Poison','sv-dp')">Death/Poison</button>
+    <button class="quick-roll-btn" onclick="rollSave('Wands','sv-w')">Wands</button>
+    <button class="quick-roll-btn" onclick="rollSave('Paralysis','sv-ps')">Paralysis</button>
+    <button class="quick-roll-btn" onclick="rollSave('Breath','sv-b')">Breath</button>
+    <button class="quick-roll-btn" onclick="rollSave('Spells','sv-sr')">Spells</button>
   </div>
 </div>
 
-<!-- Add/Edit Preset Modal -->
-<div class="modal-overlay" id="presetModal">
-  <div class="modal">
-    <div class="modal-title" id="modalTitle">New Preset Roll</div>
-    <div class="modal-field">
-      <label class="modal-label">Name</label>
-      <input class="modal-input" id="presetNameInput" type="text" placeholder="Attack Roll"/>
+<!-- ABILITIES TAB — only Class Abilities + Languages + Racial Abilities -->
+<div class="tab-panel" id="panel-abilities">
+  <div class="section-title">Class Abilities &amp; Special Skills</div>
+  <table class="abilities-list"><thead><tr><th style="width:45%">Ability</th><th style="width:15%">Score</th><th style="width:35%">Notes</th><th></th></tr></thead><tbody id="classAbilitiesBody"></tbody></table>
+  <button class="add-row-btn" onclick="addAbilityRow('classAbilitiesBody','classAbilities')">+ Add Ability</button>
+  <div class="section-title" style="margin-top:14px;">Languages</div>
+  <textarea class="lang-box" id="langDetails" rows="3" placeholder="Languages known, literacy notes…"></textarea>
+  <div class="section-title" style="margin-top:14px;">Racial Abilities</div>
+  <textarea class="notes-area" id="racialAbilities" rows="4" placeholder="Infravision, find secret doors, etc…"></textarea>
+</div>
+
+<!-- INVENTORY TAB — Weapons, Armor, Equipment -->
+<div class="tab-panel" id="panel-inventory">
+
+  <div class="section-title">Weapons</div>
+  <div class="inv-hdr-weapon"><span>Weapon</span><span>Dmg</span><span>To Hit</span><span>Range</span><span>Wt(cn)</span><span></span></div>
+  <div id="weaponList"></div>
+  <button class="add-row-btn" onclick="addWeaponInvRow()">+ Add Weapon</button>
+
+  <div class="section-title" style="margin-top:12px;">Armor</div>
+  <div class="inv-hdr-armor"><span>Armor</span><span>AC</span><span>Type</span><span>Wt(cn)</span><span></span></div>
+  <div id="armorList"></div>
+  <button class="add-row-btn" onclick="addArmorRow()">+ Add Armor</button>
+
+  <div class="section-title" style="margin-top:12px;">Equipment &amp; Treasure</div>
+  <div class="inv-hdr-equip"><span>Item</span><span>Qty</span><span>Wt(cn)</span><span>Value(gp)</span><span></span></div>
+  <div id="inventoryList"></div>
+  <button class="add-row-btn" onclick="addInvRow()">+ Add Item</button>
+
+  <div class="enc-bar"><span class="enc-label">Total Encumbrance:</span><span class="enc-val" id="totalEnc">0</span><span class="enc-label">cn</span><span class="enc-label" style="margin-left:12px;">Level:</span><span class="enc-val" id="encLevel" style="font-size:13px;">Unencumbered</span></div>
+
+  <div class="section-title" style="margin-top:12px;">Coin Purse</div>
+  <div class="three-col">
+    <div class="stat-box"><span class="stat-label">GP</span><input class="stat-val" type="number" id="coinGP" placeholder="0" oninput="saveData()"/></div>
+    <div class="stat-box"><span class="stat-label">SP</span><input class="stat-val" type="number" id="coinSP" placeholder="0" oninput="saveData()"/></div>
+    <div class="stat-box"><span class="stat-label">CP</span><input class="stat-val" type="number" id="coinCP" placeholder="0" oninput="saveData()"/></div>
+  </div>
+  <div class="three-col" style="margin-top:8px;">
+    <div class="stat-box"><span class="stat-label">EP</span><input class="stat-val" type="number" id="coinEP" placeholder="0" oninput="saveData()"/></div>
+    <div class="stat-box"><span class="stat-label">PP</span><input class="stat-val" type="number" id="coinPP" placeholder="0" oninput="saveData()"/></div>
+    <div class="stat-box"><span class="stat-label">Gems/Jewels</span><input class="stat-val" type="text" id="coinGems" placeholder="—" oninput="saveData()"/></div>
+  </div>
+</div>
+
+<!-- SPELLS TAB -->
+<div class="tab-panel" id="panel-spells">
+  <div class="section-title">Spellbook</div>
+  <div id="spellLevels"></div>
+</div>
+
+<!-- NOTES TAB — sub-tabs, each a big textarea -->
+<div class="tab-panel" id="panel-notes">
+  <div class="notes-tabbar" id="notesTabBar">
+    <!-- sub-tabs rendered by JS -->
+    <button class="new-page-btn" id="newPageBtn" onclick="addNotesPage()">+ New Page</button>
+  </div>
+  <div id="notesPagesContainer"></div>
+</div>
+
+</div><!-- end sheet-body -->
+
+<!-- DICE DOCK -->
+<div class="dice-dock">
+  <div class="dice-dock-top">
+    <span class="dice-dock-title">⚄ Dice Roller</span>
+    <div class="vis-btns">
+      <button class="vis-btn" id="vbGM" onclick="setVis('gm')">GM</button>
+      <button class="vis-btn active" id="vbPublic" onclick="setVis('public')">Public</button>
+      <button class="vis-btn" id="vbPrivate" onclick="setVis('private')">Private</button>
     </div>
-    <div class="modal-field">
-      <label class="modal-label">Formula</label>
-      <input class="modal-input" id="presetFormulaInput" type="text" placeholder="1d20+3"/>
-      <div class="modal-hint">Examples: 1d20+2 &nbsp;·&nbsp; 2d6 &nbsp;·&nbsp; 3d6+6 &nbsp;·&nbsp; 1d8-1 &nbsp;·&nbsp; 4d6k3</div>
+    <!-- preset chips row -->
+    <div class="dice-presets-row" id="dicePresets" style="flex:1;"></div>
+    <!-- +/- far right -->
+    <button class="toggle-builder-btn" id="toggleBuilderBtn" onclick="toggleDiceExpand()">+/−</button>
+  </div>
+  <div class="dice-expanded" id="diceExpanded">
+    <div class="dice-icons-row" id="diceIconsRow"></div>
+    <!-- Builder: Name | Attack[d20] btn | Atk Mod | sep | Dmg Mod | Roll | Save | Clear -->
+    <div class="dice-builder">
+      <label>Name</label>
+      <input type="text" id="presetName" placeholder="Greatsword" class="builder-input" style="width:80px"/>
+      <button class="atk-d20-btn" id="atkToggleBtn" onclick="toggleAtk()">Attack [d20]</button>
+      <input type="number" id="atkMod" value="0" class="builder-input" style="width:44px" title="Attack modifier"/>
+      <div class="builder-sep"></div>
+      <input type="number" id="diceMod" value="0" class="builder-input" style="width:44px" title="Damage modifier"/>
+      <button class="builder-roll-btn" onclick="rollFromBuilder()">Roll</button>
+      <button class="save-preset-btn" onclick="savePreset()">Save</button>
+      <button class="clear-btn" onclick="clearDice()">Clear</button>
     </div>
-    <div class="modal-field">
-      <label class="modal-label">Description (optional)</label>
-      <input class="modal-input" id="presetDescInput" type="text" placeholder="Longsword, Str+1"/>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closePresetModal()">Cancel</button>
-      <button class="btn-confirm" onclick="savePreset()">Save</button>
-    </div>
+    <div id="dicePreview" style="font-size:10px;color:rgba(201,168,76,.4);margin-top:3px;font-family:'IM Fell English',serif;letter-spacing:1px;min-height:14px;">— select dice above —</div>
+  </div>
+</div>
+
+<!-- ROLL LOG -->
+<div class="roll-log-wrap" id="rollLog">
+  <div class="log-header-row">Roll Log</div>
+</div>
+
+<!-- DICE OVERLAY -->
+<div id="dice-overlay" onclick="dismissRoll()">
+  <div id="dice-tray"></div>
+  <div class="dice-result-card" onclick="event.stopPropagation()" id="resultCard">
+    <div class="result-formula" id="resultFormula"></div>
+    <div id="resultContent"></div>
+    <button class="result-dismiss" onclick="dismissRoll()">Dismiss</button>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════
-let state = {
-  languages: ['Common'],
-  inventory: [],
-  presets: [
-    { name: 'Attack', formula: '1d20', desc: 'Basic attack roll' },
-    { name: 'Damage (1d8)', formula: '1d8', desc: 'Longsword / Warhammer' },
-    { name: 'Damage (2d6)', formula: '2d6', desc: 'Two-handed sword' },
-    { name: 'Backstab', formula: '1d20+4', desc: 'Thief backstab' },
-    { name: 'Stat Roll', formula: '3d6', desc: 'Roll ability score' },
-    { name: 'Saving Throw', formula: '1d20', desc: 'Generic save' },
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+const STORAGE_KEY='ose_sheet_v5';
+let state={
+  fields:{},
+  inventory:[],      // equipment
+  weaponInv:[],      // inventory weapons
+  armorInv:[],       // inventory armor
+  classAbilities:[],
+  spells:Array.from({length:9},(_,i)=>({level:i+1,slots:0,used:0,list:[]})),
+  presets:[
+    {name:'Dagger',   dice:[{n:1,s:4}],  mod:0, hasAtk:true,  atkMod:0},
+    {name:'Fireball', dice:[{n:6,s:6}],  mod:0, hasAtk:false, atkMod:0},
   ],
-  rollHistory: [],
-  editingPresetIndex: -1,
+  notesPages:[{title:'Notes',text:''}],
+  rollLog:[],
+  visibility:'public'
 };
 
-// ══════════════════════════════════════════════════
-// PERSISTENCE (localStorage keyed by char name)
-// ══════════════════════════════════════════════════
-function saveKey() {
-  return 'ose_sheet';
-}
-function saveAll() {
-  const data = { state };
-  document.querySelectorAll('[data-save]').forEach(el => {
-    const key = el.getAttribute('data-save');
-    data[key] = el.tagName === 'SELECT' ? el.value : el.value;
-  });
-  localStorage.setItem(saveKey(), JSON.stringify(data));
-}
-function loadAll() {
-  const raw = localStorage.getItem(saveKey());
-  if (!raw) return;
-  try {
-    const data = JSON.parse(raw);
-    if (data.state) {
-      state.languages = data.state.languages || ['Common'];
-      state.inventory  = data.state.inventory  || [];
-      state.presets    = data.state.presets    || state.presets;
-      state.rollHistory = data.state.rollHistory || [];
-    }
-    document.querySelectorAll('[data-save]').forEach(el => {
-      const key = el.getAttribute('data-save');
-      if (data[key] !== undefined) el.value = data[key];
-    });
-  } catch(e) {}
+// ══════════════════════════════════════════
+//  DIE ICONS
+// ══════════════════════════════════════════
+const DIE_TYPES=['d4','d6','d8','d10','d12','d20','d100'];
+let diceSelection={};
+let diceExpanded=false;
+let hasAtk=false;
+
+function dieSVG(dt,size,fillCol,strokeCol){
+  const f=fillCol||'#c9a84c', s=strokeCol||'#8b6914', sw=1.5;
+  const shapes={
+    d4:`<polygon class="die-fill" points="20,3 37,35 3,35" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`,
+    d6:`<rect class="die-fill" x="4" y="4" width="32" height="32" rx="4" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`,
+    d8:`<polygon class="die-fill" points="20,2 38,20 20,38 2,20" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`,
+    d10:`<polygon class="die-fill" points="20,2 36,14 32,34 8,34 4,14" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`,
+    d12:`<polygon class="die-fill" points="20,2 33,8 38,22 30,35 10,35 2,22 7,8" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`,
+    d20:`<polygon class="die-fill" points="20,2 36,12 36,28 20,38 4,28 4,12" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`,
+    d100:`<circle class="die-fill" cx="20" cy="20" r="17" fill="${f}" stroke="${s}" stroke-width="${sw}"/>`
+  };
+  const sz=size||40;
+  return `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}">${shapes[dt]}</svg>`;
 }
 
-// Auto-save on any input
-document.addEventListener('input', saveAll);
-document.addEventListener('change', saveAll);
-
-// ══════════════════════════════════════════════════
-// TABS
-// ══════════════════════════════════════════════════
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-  });
-});
-
-// ══════════════════════════════════════════════════
-// OSE STAT MODIFIERS
-// ══════════════════════════════════════════════════
-const OSE_MOD = {
-  3:  { mod: -3, desc: '−3' },
-  4:  { mod: -2, desc: '−2' },
-  5:  { mod: -2, desc: '−2' },
-  6:  { mod: -1, desc: '−1' },
-  7:  { mod: -1, desc: '−1' },
-  8:  { mod: -1, desc: '−1' },
-  9:  { mod:  0, desc: '+0' },
-  10: { mod:  0, desc: '+0' },
-  11: { mod:  0, desc: '+0' },
-  12: { mod:  0, desc: '+0' },
-  13: { mod: +1, desc: '+1' },
-  14: { mod: +1, desc: '+1' },
-  15: { mod: +1, desc: '+1' },
-  16: { mod: +2, desc: '+2' },
-  17: { mod: +2, desc: '+2' },
-  18: { mod: +3, desc: '+3' },
-};
-
-const STAT_SUBS = {
-  STR: v => v >= 13 ? 'Open Doors +'  : '',
-  INT: v => v >= 13 ? `+${Math.min(3, Math.floor((v-12)/2))} langs` : '',
-  WIS: v => v >= 13 ? 'Save bonus' : v <= 8 ? 'Save penalty' : '',
-  DEX: v => '',
-  CON: v => v >= 15 ? '+1 HP/die' : v <= 6 ? '−1 HP/die' : '',
-  CHA: v => {
-    const r = v <= 3 ? 1 : v <= 5 ? 2 : v <= 8 ? 3 : v <= 12 ? 4 : v <= 15 ? 5 : v <= 17 ? 6 : 7;
-    return `Max ${r} retainers`;
-  },
-};
-
-function updateMods() {
-  ['STR','INT','WIS','DEX','CON','CHA'].forEach(s => {
-    const el = document.getElementById('stat-' + s);
-    const v = parseInt(el.value);
-    if (!v || v < 3 || v > 18) {
-      document.getElementById('mod-' + s).textContent = '';
-      document.getElementById('sub-' + s).textContent = '';
-      return;
-    }
-    const m = OSE_MOD[v];
-    if (m) {
-      document.getElementById('mod-' + s).textContent = m.desc;
-      document.getElementById('sub-' + s).textContent = STAT_SUBS[s] ? STAT_SUBS[s](v) : '';
-    }
+function buildDiceIcons(){
+  const row=document.getElementById('diceIconsRow');
+  DIE_TYPES.forEach(dt=>{
+    const btn=document.createElement('div');
+    btn.className='die-icon-btn'; btn.id='dieBtn-'+dt;
+    btn.innerHTML=dieSVG(dt)+`<div class="die-label">${dt}</div><div class="die-count-badge" id="badge-${dt}">1</div>`;
+    btn.onclick=()=>selectDie(dt);
+    row.appendChild(btn);
   });
 }
 
-// ══════════════════════════════════════════════════
-// XP BAR
-// ══════════════════════════════════════════════════
-function updateXP() {
-  const cur = parseInt(document.getElementById('xpCurrent').value) || 0;
-  const nxt = parseInt(document.getElementById('xpNext').value) || 0;
-  if (nxt > 0) {
-    const pct = Math.min(100, (cur / nxt) * 100);
-    document.getElementById('xpFill').style.width = pct + '%';
-  }
+function selectDie(dt){
+  diceSelection[dt]=(diceSelection[dt]||0)+1;
+  document.getElementById('dieBtn-'+dt).classList.add('selected');
+  document.getElementById('badge-'+dt).textContent=diceSelection[dt];
+  updateDicePreview();
 }
 
-// ══════════════════════════════════════════════════
-// LANGUAGES
-// ══════════════════════════════════════════════════
-function renderLanguages() {
-  const list = document.getElementById('langList');
-  list.innerHTML = '';
-  state.languages.forEach((lang, i) => {
-    const tag = document.createElement('div');
-    tag.className = 'lang-tag';
-    tag.innerHTML = `${lang} <span class="lang-remove" onclick="removeLang(${i})">✕</span>`;
-    list.appendChild(tag);
+function clearDice(){
+  diceSelection={};
+  hasAtk=false;
+  DIE_TYPES.forEach(dt=>{
+    const btn=document.getElementById('dieBtn-'+dt);
+    if(btn){btn.classList.remove('selected');document.getElementById('badge-'+dt).textContent='1';}
   });
-  saveAll();
-}
-function addLanguage() {
-  const inp = document.getElementById('langInput');
-  const val = inp.value.trim();
-  if (!val) return;
-  state.languages.push(val);
-  inp.value = '';
-  renderLanguages();
-}
-function removeLang(i) {
-  state.languages.splice(i, 1);
-  renderLanguages();
+  document.getElementById('presetName').value='';
+  document.getElementById('diceMod').value='0';
+  document.getElementById('atkMod').value='0';
+  document.getElementById('atkToggleBtn').classList.remove('on');
+  updateDicePreview();
 }
 
-// ══════════════════════════════════════════════════
-// INVENTORY
-// ══════════════════════════════════════════════════
-function addInvRow(item = { name:'', weight:'', notes:'' }) {
-  state.inventory.push(item);
-  renderInventory();
+function toggleAtk(){
+  hasAtk=!hasAtk;
+  document.getElementById('atkToggleBtn').classList.toggle('on',hasAtk);
+  updateDicePreview();
 }
-function renderInventory() {
-  const container = document.getElementById('inventoryRows');
-  container.innerHTML = '';
-  state.inventory.forEach((item, i) => {
-    const row = document.createElement('div');
-    row.className = 'inventory-row';
-    row.innerHTML = `
-      <input class="inv-input" value="${esc(item.name)}" placeholder="Item name" oninput="state.inventory[${i}].name=this.value;updateEnc();saveAll()"/>
-      <input class="inv-input" value="${esc(item.weight)}" placeholder="0" type="number" style="width:50px" oninput="state.inventory[${i}].weight=this.value;updateEnc();saveAll()"/>
-      <input class="inv-input" value="${esc(item.notes)}" placeholder="notes…" oninput="state.inventory[${i}].notes=this.value;saveAll()"/>
-      <button class="inv-delete" onclick="removeInvRow(${i})">✕</button>
-    `;
-    container.appendChild(row);
+
+function updateDicePreview(){
+  const parts=DIE_TYPES.filter(dt=>(diceSelection[dt]||0)>0).map(dt=>`${diceSelection[dt]}${dt}`);
+  const mod=parseInt(document.getElementById('diceMod')?.value)||0;
+  const am=parseInt(document.getElementById('atkMod')?.value)||0;
+  let str=parts.join('+');
+  if(mod!==0) str+=(mod>0?`+${mod}`:`${mod}`);
+  if(hasAtk){const ms=am!==0?(am>0?`+${am}`:`${am}`):'';str+=` | Atk:1d20${ms}`;}
+  document.getElementById('dicePreview').textContent=str||'— select dice above —';
+}
+
+function toggleDiceExpand(){
+  diceExpanded=!diceExpanded;
+  document.getElementById('diceExpanded').classList.toggle('open',diceExpanded);
+  document.getElementById('toggleBuilderBtn').classList.toggle('open',diceExpanded);
+}
+
+// ══════════════════════════════════════════
+//  VISIBILITY
+// ══════════════════════════════════════════
+function setVis(v){
+  state.visibility=v;
+  ['gm','public','private'].forEach(x=>document.getElementById('vb'+x.charAt(0).toUpperCase()+x.slice(1))?.classList.toggle('active',x===v));
+  saveData();
+}
+
+// ══════════════════════════════════════════
+//  PRESETS
+// ══════════════════════════════════════════
+function renderPresets(){
+  const el=document.getElementById('dicePresets'); el.innerHTML='';
+  state.presets.forEach((p,i)=>{
+    const chip=document.createElement('div'); chip.className='preset-chip';
+    chip.innerHTML=`<span onclick="rollPreset(${i})">${escHtml(p.name)}</span><span class="chip-del" onclick="delPreset(${i},event)">×</span>`;
+    el.appendChild(chip);
   });
-  updateEnc();
 }
-function removeInvRow(i) {
-  state.inventory.splice(i, 1);
-  renderInventory();
-  saveAll();
+
+function buildDiceStr(diceArr,mod){
+  const parts=(diceArr||[]).filter(d=>d.n>0).map(d=>`${d.n}d${d.s}`);
+  let s=parts.join('+');
+  if(mod!==0) s+=(mod>0?`+${mod}`:`${mod}`);
+  return s||'—';
 }
-function updateEnc() {
-  let total = 0;
-  state.inventory.forEach(it => { total += parseFloat(it.weight) || 0; });
-  const max = 80;
-  const pct = Math.min(100, (total / max) * 100);
-  document.getElementById('encFill').style.width = pct + '%';
-  document.getElementById('encFill').style.background =
-    pct > 80 ? 'linear-gradient(90deg, #8b2020, #c43030)' :
-    pct > 50 ? 'linear-gradient(90deg, #7a5a18, #c9962a)' :
-    'linear-gradient(90deg, var(--gold-dim), var(--gold2))';
-  document.getElementById('encText').textContent = `${total} / ${max} cn`;
+
+function getDiceFromSelection(){
+  return DIE_TYPES.filter(dt=>(diceSelection[dt]||0)>0).map(dt=>({n:diceSelection[dt],s:parseInt(dt.substring(1))}));
 }
-function esc(s) { return (s||'').replace(/"/g,'&quot;'); }
 
-// ══════════════════════════════════════════════════
-// SPELLS
-// ══════════════════════════════════════════════════
-const SPELL_LEVELS = 9;
-function renderSpellLevels() {
-  const container = document.getElementById('spellLevels');
-  container.innerHTML = '';
-  for (let lvl = 1; lvl <= SPELL_LEVELS; lvl++) {
-    const spells = state[`spells_${lvl}`] || [{ name:'', prepared:false }];
-    state[`spells_${lvl}`] = spells;
-    const used = state[`slots_used_${lvl}`] || 0;
-    const total = state[`slots_total_${lvl}`] || 0;
+function savePreset(){
+  const dice=getDiceFromSelection();
+  if(!dice.length){alert('Select at least one die first!');return;}
+  const name=document.getElementById('presetName').value.trim()||buildDiceStr(dice,0);
+  const mod=parseInt(document.getElementById('diceMod').value)||0;
+  const atkMod=parseInt(document.getElementById('atkMod').value)||0;
+  state.presets.push({name,dice,mod,hasAtk,atkMod});
+  renderPresets(); saveData(); clearDice();
+}
 
-    const section = document.createElement('div');
-    section.className = 'section';
-    section.style.marginBottom = '6px';
+function delPreset(i,e){e.stopPropagation();state.presets.splice(i,1);renderPresets();saveData();}
 
-    const hdr = document.createElement('div');
-    hdr.className = 'spell-level-header';
-    hdr.innerHTML = `
-      <span class="spell-level-title">Level ${lvl} Spells</span>
-      <div style="display:flex;align-items:center;gap:6px">
-        <span style="font-size:9px;color:var(--text2)">Slots:</span>
-        <input class="spell-slot-count" type="number" min="0" max="9" value="${total}" 
-          oninput="state['slots_total_${lvl}']=parseInt(this.value)||0;renderSpellSlots(${lvl});saveAll()" 
-          onclick="event.stopPropagation()" style="color:var(--text);"/>
-        <div id="slotsViz_${lvl}" style="display:flex;gap:2px"></div>
-      </div>
-    `;
-    hdr.addEventListener('click', () => {
-      rows.style.display = rows.style.display === 'none' ? 'block' : 'none';
-    });
+function rollPreset(i){
+  const p=state.presets[i];
+  rollMultiDice(p.dice,p.mod,p.name,p.hasAtk||false,p.atkMod||0);
+  clearDice();
+}
 
-    const rows = document.createElement('div');
-    rows.className = 'spell-rows';
-    spells.forEach((sp, si) => {
-      const row = document.createElement('div');
-      row.className = 'spell-row';
-      row.innerHTML = `
-        <input class="spell-input" value="${esc(sp.name)}" placeholder="Spell name…" 
-          oninput="state['spells_${lvl}'][${si}].name=this.value;saveAll()"/>
-        <input class="spell-input" value="${esc(sp.duration||'')}" placeholder="Duration" 
-          oninput="state['spells_${lvl}'][${si}].duration=this.value;saveAll()"/>
-        <input type="checkbox" class="spell-prepared" ${sp.prepared?'checked':''} 
-          onchange="state['spells_${lvl}'][${si}].prepared=this.checked;saveAll()" title="Prepared"/>
-      `;
-      rows.appendChild(row);
-    });
+function rollFromBuilder(){
+  const dice=getDiceFromSelection();
+  if(!dice.length) return;
+  const mod=parseInt(document.getElementById('diceMod').value)||0;
+  const atkMod=parseInt(document.getElementById('atkMod').value)||0;
+  const name=document.getElementById('presetName').value.trim()||buildDiceStr(dice,mod);
+  rollMultiDice(dice,mod,name,hasAtk,atkMod);
+  clearDice();
+}
 
-    // Add/remove spell buttons
-    const footer = document.createElement('div');
-    footer.style.cssText = 'display:flex;gap:6px;padding:4px 8px;border-top:1px solid var(--border)';
-    footer.innerHTML = `
-      <button class="btn-small" onclick="addSpell(${lvl})">+ Spell</button>
-      <button class="btn-small" style="color:var(--red)" onclick="removeLastSpell(${lvl})">− Remove</button>
-    `;
+// ══════════════════════════════════════════
+//  ROLL ENGINE
+// ══════════════════════════════════════════
+function rollDie(s){return Math.ceil(Math.random()*s);}
 
-    section.appendChild(hdr);
-    section.appendChild(rows);
-    section.appendChild(footer);
-    container.appendChild(section);
-    renderSpellSlots(lvl);
+function rollMultiDice(diceArr,mod,label,doAtk,atkMod){
+  const dmgRolls=[];
+  diceArr.forEach(d=>{for(let i=0;i<Math.min(d.n,20);i++) dmgRolls.push({val:rollDie(d.s),sides:d.s});});
+  const dmgSum=dmgRolls.reduce((a,r)=>a+r.val,0)+(mod||0);
+  let atkRoll=null;
+  if(doAtk){const v=rollDie(20); atkRoll={val:v,total:v+(atkMod||0)};}
+  showRollOverlay(dmgRolls,mod||0,dmgSum,diceArr,atkRoll,atkMod||0,label);
+  addToLog({who:document.getElementById('charName').value||'Unknown',label,diceArr,mod:mod||0,dmgSum,dmgRolls,atkRoll,atkMod:atkMod||0,vis:state.visibility});
+}
+
+function rollGeneric(diceArr,mod,label){rollMultiDice(diceArr,mod,label,false,0);}
+
+// ══════════════════════════════════════════
+//  PHYSICS OVERLAY + DIE SILHOUETTES IN CARD
+// ══════════════════════════════════════════
+let physDice=[],animFrame=null;
+
+// Maps sides -> die type string for silhouette
+function sidesKey(s){
+  if(s===4) return 'd4';
+  if(s===6) return 'd6';
+  if(s===8) return 'd8';
+  if(s===10) return 'd10';
+  if(s===12) return 'd12';
+  if(s===20) return 'd20';
+  if(s===100) return 'd100';
+  return 'd6';
+}
+
+// Render silhouette faces for the result card
+function silhouetteHTML(rolls, isAtk){
+  return rolls.map((r,i)=>{
+    const dt=sidesKey(r.sides);
+    const isMax=r.val===r.sides, isMin=r.val===1;
+    const fillCol=isAtk?(isMax?'#a03030':isMin?'#4a1a1a':'#3d1a1a'):(isMax?'#c9a84c':isMin?'#5a1a1a':'#e8d59a');
+    const strokeCol=isAtk?'#8b1a1a':'#8b6914';
+    const numCol=isAtk?(isMax?'#ffe0e0':isMin?'#faa':'#e8d59a'):(isMax?'#1c1008':isMin?'#f4e8c1':'#1c1008');
+    const sz=32;
+    return `<div class="die-sil" style="animation-delay:${i*55}ms;width:${sz}px;height:${sz}px;">
+      ${dieSVG(dt,sz,fillCol,strokeCol)}
+      <div class="sil-num" style="color:${numCol};font-size:${r.val>9?11:13}px;">${r.val}</div>
+    </div>`;
+  }).join('');
+}
+
+function showRollOverlay(dmgRolls,mod,dmgTotal,diceArr,atkRoll,atkMod,label){
+  const overlay=document.getElementById('dice-overlay');
+  const tray=document.getElementById('dice-tray');
+  if(animFrame) cancelAnimationFrame(animFrame);
+  tray.innerHTML=''; physDice=[];
+  const W=window.innerWidth,H=window.innerHeight;
+
+  // spawn physics tokens
+  const toThrow=[...dmgRolls.map(r=>({...r,isAtk:false}))];
+  if(atkRoll) toThrow.push({val:atkRoll.val,sides:20,isAtk:true});
+
+  toThrow.forEach((r,idx)=>{
+    const dt=sidesKey(r.sides);
+    const sz=r.sides<=6?36:r.sides<=12?40:44;
+    const isMax=r.val===r.sides,isMin=r.val===1;
+    const bg=r.isAtk?(isMax?'#8b2020':isMin?'#4a1a1a':'#3d1a1a'):(isMax?'#c9a84c':isMin?'#5a1a1a':'#e8d59a');
+    const bc=r.isAtk?'#8b1a1a':'#8b6914';
+    const fc=r.isAtk?'#e8d59a':(isMax||isMin?'#f4e8c1':'#1c1008');
+
+    const wrap=document.createElement('div');
+    wrap.className='phy-die';
+    wrap.style.cssText=`width:${sz}px;height:${sz}px;`;
+    wrap.innerHTML=dieSVG(dt,sz,bg,bc)+`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:${sz>38?15:12}px;color:${fc};pointer-events:none;">${r.val}</div>`;
+    tray.appendChild(wrap);
+
+    const edge=Math.floor(Math.random()*4);
+    let sx,sy;
+    if(edge===0){sx=Math.random()*W;sy=-70;}
+    else if(edge===1){sx=W+70;sy=Math.random()*H;}
+    else if(edge===2){sx=Math.random()*W;sy=H+70;}
+    else{sx=-70;sy=Math.random()*H;}
+    const tx=20+Math.random()*(W-sz-40);
+    const ty=H*0.38+Math.random()*(H*0.42-sz);
+    const spd=8+Math.random()*7;
+    physDice.push({el:wrap,x:sx,y:sy,vx:(tx-sx)/spd,vy:(ty-sy)/spd,tx,ty,rot:(Math.random()-0.5)*600,rotSpd:(Math.random()-0.5)*25,settled:false,delay:idx*90});
+  });
+
+  // build result card
+  document.getElementById('resultFormula').textContent=label||'—';
+  const content=document.getElementById('resultContent'); content.innerHTML='';
+
+  if(atkRoll){
+    const atkStr='1d20'+(atkMod!==0?(atkMod>0?`+${atkMod}`:`${atkMod}`):'');
+    const crit=atkRoll.val===20?'<span style="color:#8fc;font-size:9px;"> CRIT!</span>':atkRoll.val===1?'<span style="color:#faa;font-size:9px;"> FUMBLE</span>':'';
+    content.innerHTML+=`<div class="result-block">
+      <div class="result-block-label">Attack Roll</div>
+      <div class="result-dice-row">${silhouetteHTML([{val:atkRoll.val,sides:20}],true)}</div>
+      <div class="result-total" style="font-size:36px;color:#e8a0a0;">${atkRoll.total}${crit}</div>
+      <div class="result-modifier">${atkStr}</div>
+    </div><hr class="result-sep"/>`;
   }
-}
-function renderSpellSlots(lvl) {
-  const viz = document.getElementById('slotsViz_' + lvl);
-  if (!viz) return;
-  const total = state[`slots_total_${lvl}`] || 0;
-  const used = state[`slots_used_${lvl}`] || 0;
-  viz.innerHTML = '';
-  for (let i = 0; i < total; i++) {
-    const slot = document.createElement('div');
-    slot.className = 'spell-slot' + (i < used ? ' used' : '');
-    slot.title = i < used ? 'Expended (click to restore)' : 'Available (click to expend)';
-    slot.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (i < used) state[`slots_used_${lvl}`] = i;
-      else state[`slots_used_${lvl}`] = i + 1;
-      renderSpellSlots(lvl);
-      saveAll();
-    });
-    viz.appendChild(slot);
-  }
-}
-function addSpell(lvl) {
-  if (!state[`spells_${lvl}`]) state[`spells_${lvl}`] = [];
-  state[`spells_${lvl}`].push({ name:'', prepared:false });
-  renderSpellLevels();
-  saveAll();
-}
-function removeLastSpell(lvl) {
-  if (state[`spells_${lvl}`] && state[`spells_${lvl}`].length > 1) {
-    state[`spells_${lvl}`].pop();
-    renderSpellLevels();
-    saveAll();
-  }
-}
 
-// ══════════════════════════════════════════════════
-// DICE ROLLER ENGINE
-// ══════════════════════════════════════════════════
-function rollDie(sides) {
-  return Math.floor(Math.random() * sides) + 1;
-}
+  const dmgStr=buildDiceStr(diceArr,mod);
+  const breakdown=dmgRolls.map(r=>r.val).join('+')+( mod!==0?(mod>0?`+${mod}`:`${mod}`):'');
+  content.innerHTML+=`<div class="result-block">
+    ${atkRoll?'<div class="result-block-label">Damage</div>':''}
+    <div class="result-dice-row">${silhouetteHTML(dmgRolls,false)}</div>
+    <div class="result-total">${dmgTotal}</div>
+    <div class="result-modifier">${dmgStr}${dmgRolls.length>1||mod!==0?' = '+breakdown:''}</div>
+  </div>`;
 
-function parseFormula(formula) {
-  // Supports: XdY+Z, XdYkN (keep highest N), XdY-Z
-  formula = formula.toLowerCase().trim().replace(/\s/g,'');
-  
-  const results = [];
-  let modifier = 0;
-  let label = formula;
-  
-  // Extract modifiers
-  const modMatch = formula.match(/([+-]\d+)$/);
-  if (modMatch) {
-    modifier = parseInt(modMatch[1]);
-    formula = formula.slice(0, formula.length - modMatch[1].length);
-  }
-  
-  // Parse dice part: XdY or XdYkN
-  const diceMatch = formula.match(/^(\d*)d(\d+)(?:k(\d+))?$/);
-  if (!diceMatch) {
-    // Maybe it's just a number
-    const num = parseInt(formula.replace(/[+-]/g,'')) || 0;
-    return { rolls: [num], total: num + modifier, modifier, label };
-  }
-  
-  const count = parseInt(diceMatch[1]) || 1;
-  const sides = parseInt(diceMatch[2]);
-  const keep = diceMatch[3] ? parseInt(diceMatch[3]) : count;
-  
-  const allRolls = [];
-  for (let i = 0; i < count; i++) allRolls.push(rollDie(sides));
-  
-  // Sort descending for keep-highest
-  const sorted = [...allRolls].sort((a,b) => b-a);
-  const kept = sorted.slice(0, keep);
-  
-  const diceTotal = kept.reduce((a,b) => a+b, 0);
-  const total = diceTotal + modifier;
-  
-  return { rolls: kept, droppedRolls: sorted.slice(keep), total, modifier, label, sides, count, keep };
-}
-
-function getDieShape(sides) {
-  switch(sides) {
-    case 4:  return `<polygon points="26,2 50,46 2,46" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>`;
-    case 6:  return `<rect x="3" y="3" width="44" height="44" rx="4" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>`;
-    case 8:  return `<polygon points="26,2 50,26 26,50 2,26" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>`;
-    case 10: return `<polygon points="26,2 48,20 40,48 12,48 4,20" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>`;
-    case 12: return `<polygon points="26,2 46,12 50,35 34,50 18,50 2,35 6,12" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>`;
-    case 20: return `<polygon points="26,2 50,20 42,46 10,46 2,20" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>`;
-    case 100:return `<circle cx="26" cy="26" r="23" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>`;
-    default: return `<rect x="3" y="3" width="44" height="44" rx="4" fill="none" stroke="var(--gold-dim)" stroke-width="1.5"/>`;
-  }
-}
-
-function showRoll(name, formula) {
-  const result = parseFormula(formula);
-  const overlay = document.getElementById('diceOverlay');
-  const animDiv = document.getElementById('diceAnimation');
-  const totalDiv = document.getElementById('rollTotal');
-  const breakDiv = document.getElementById('rollBreakdown');
-  const labelDiv = document.getElementById('rollLabel');
-  
-  labelDiv.textContent = name;
-  totalDiv.textContent = '—';
-  breakDiv.textContent = '';
-  animDiv.innerHTML = '';
-  
   overlay.classList.add('rolling');
-  
-  // Render dice with animation delay
-  result.rolls.forEach((val, i) => {
-    const die = document.createElement('div');
-    die.className = 'die';
-    die.style.animationDelay = (i * 0.08) + 's';
-    die.innerHTML = `<svg viewBox="0 0 52 52">${getDieShape(result.sides || 6)}</svg><span class="die-num">${val}</span>`;
-    animDiv.appendChild(die);
-  });
-  
-  // Reveal total after dice land
-  setTimeout(() => {
-    totalDiv.textContent = result.total;
-    let breakdown = result.rolls.join(' + ');
-    if (result.modifier !== 0) {
-      breakdown += (result.modifier > 0 ? ' + ' : ' − ') + Math.abs(result.modifier);
-    }
-    if (result.rolls.length > 1 || result.modifier !== 0) {
-      breakDiv.textContent = `= ${breakdown}`;
-    }
-    if (result.droppedRolls && result.droppedRolls.length) {
-      breakDiv.textContent += ` (dropped: ${result.droppedRolls.join(', ')})`;
-    }
-    
-    // Add to history
-    state.rollHistory.unshift({ name, formula, total: result.total, rolls: result.rolls, modifier: result.modifier });
-    if (state.rollHistory.length > 20) state.rollHistory.pop();
-    renderHistory();
-    saveAll();
-  }, 550);
-}
 
-function closeRoll() {
-  document.getElementById('diceOverlay').classList.remove('rolling');
-}
-
-// Close on backdrop click
-document.getElementById('diceOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeRoll();
-});
-
-function quickRoll(sides) {
-  showRoll('d' + sides, '1d' + sides);
-}
-
-function rollStat(stat) {
-  showRoll(stat + ' Check', '1d20');
-}
-
-function rollSave(save) {
-  showRoll(save + ' Save', '1d20');
-}
-
-// ══════════════════════════════════════════════════
-// PRESETS
-// ══════════════════════════════════════════════════
-function renderPresets() {
-  const grid = document.getElementById('presetGrid');
-  grid.innerHTML = '';
-  state.presets.forEach((p, i) => {
-    const btn = document.createElement('div');
-    btn.className = 'preset-btn';
-    btn.innerHTML = `
-      <button class="preset-delete" onclick="event.stopPropagation();deletePreset(${i})" title="Delete">✕</button>
-      <button class="preset-edit" onclick="event.stopPropagation();editPreset(${i})" title="Edit">✎</button>
-      <div class="preset-name">${p.name}</div>
-      <div class="preset-formula">${p.formula}</div>
-      <div class="preset-desc">${p.desc || ''}</div>
-    `;
-    btn.addEventListener('click', () => showRoll(p.name, p.formula));
-    grid.appendChild(btn);
-  });
-}
-
-let editingPresetIdx = -1;
-
-function openPresetModal(idx = -1) {
-  editingPresetIdx = idx;
-  const modal = document.getElementById('presetModal');
-  document.getElementById('modalTitle').textContent = idx >= 0 ? 'Edit Preset Roll' : 'New Preset Roll';
-  if (idx >= 0) {
-    const p = state.presets[idx];
-    document.getElementById('presetNameInput').value = p.name;
-    document.getElementById('presetFormulaInput').value = p.formula;
-    document.getElementById('presetDescInput').value = p.desc || '';
-  } else {
-    document.getElementById('presetNameInput').value = '';
-    document.getElementById('presetFormulaInput').value = '';
-    document.getElementById('presetDescInput').value = '';
+  const started=Date.now();
+  function animate(){
+    const now=Date.now(); let allDone=true;
+    physDice.forEach(pd=>{
+      if(now-started<pd.delay){allDone=false;return;}
+      if(pd.settled) return;
+      allDone=false;
+      const dx=pd.tx-pd.x,dy=pd.ty-pd.y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<2){pd.settled=true;pd.el.style.transform=`translate(${pd.tx}px,${pd.ty}px) rotate(0deg)`;return;}
+      pd.vx=pd.vx*0.88+dx*0.12;pd.vy=pd.vy*0.88+dy*0.12;
+      if(pd.x<0){pd.x=0;pd.vx=Math.abs(pd.vx)*0.6;}
+      if(pd.x>W-44){pd.x=W-44;pd.vx=-Math.abs(pd.vx)*0.6;}
+      if(pd.y<0){pd.y=0;pd.vy=Math.abs(pd.vy)*0.6;}
+      if(pd.y>H-44){pd.y=H-44;pd.vy=-Math.abs(pd.vy)*0.6;}
+      pd.x+=pd.vx;pd.y+=pd.vy;pd.rot+=pd.rotSpd*(dist/80);pd.rotSpd*=0.93;
+      pd.el.style.transform=`translate(${pd.x}px,${pd.y}px) rotate(${pd.rot}deg)`;
+    });
+    if(!allDone) animFrame=requestAnimationFrame(animate);
   }
-  modal.classList.add('open');
-  document.getElementById('presetNameInput').focus();
+  animFrame=requestAnimationFrame(animate);
 }
 
-function closePresetModal() {
-  document.getElementById('presetModal').classList.remove('open');
+function dismissRoll(){
+  document.getElementById('dice-overlay').classList.remove('rolling');
+  if(animFrame) cancelAnimationFrame(animFrame);
+  setTimeout(()=>{document.getElementById('dice-tray').innerHTML='';physDice=[];},300);
 }
 
-function savePreset() {
-  const name = document.getElementById('presetNameInput').value.trim();
-  const formula = document.getElementById('presetFormulaInput').value.trim();
-  const desc = document.getElementById('presetDescInput').value.trim();
-  if (!name || !formula) return;
-  if (editingPresetIdx >= 0) {
-    state.presets[editingPresetIdx] = { name, formula, desc };
-  } else {
-    state.presets.push({ name, formula, desc });
-  }
-  closePresetModal();
-  renderPresets();
-  saveAll();
+// ══════════════════════════════════════════
+//  QUICK ROLLS
+// ══════════════════════════════════════════
+const STAT_IDS={STR:'s-str',INT:'s-int',WIS:'s-wis',DEX:'s-dex',CON:'s-con',CHA:'s-cha'};
+function rollCheck(stat){
+  const v=parseInt(document.getElementById(STAT_IDS[stat])?.value)||0;
+  rollGeneric([{n:1,s:20}],0,`${stat} Check (target ≤${v})`);
+}
+function rollSave(name,inputId){
+  const t=parseInt(document.getElementById(inputId)?.value)||0;
+  rollGeneric([{n:1,s:20}],0,`${name} Save (≥${t})`);
 }
 
-function editPreset(i) {
-  openPresetModal(i);
+// ══════════════════════════════════════════
+//  ROLL LOG
+// ══════════════════════════════════════════
+function addToLog(e){
+  state.rollLog.push(e);
+  if(state.rollLog.length>200) state.rollLog.shift();
+  renderLog(); saveData();
 }
-
-function deletePreset(i) {
-  state.presets.splice(i, 1);
-  renderPresets();
-  saveAll();
-}
-
-// Enter key in modal
-document.getElementById('presetModal').addEventListener('keydown', e => {
-  if (e.key === 'Enter') savePreset();
-  if (e.key === 'Escape') closePresetModal();
-});
-
-// ══════════════════════════════════════════════════
-// HISTORY
-// ══════════════════════════════════════════════════
-function renderHistory() {
-  const container = document.getElementById('rollHistory');
-  container.innerHTML = '';
-  if (!state.rollHistory.length) {
-    container.innerHTML = '<div style="font-size:11px;color:var(--text2);font-style:italic">No rolls yet…</div>';
-    return;
-  }
-  state.rollHistory.slice(0, 10).forEach(h => {
-    const entry = document.createElement('div');
-    entry.className = 'history-entry';
-    entry.innerHTML = `
-      <span class="history-name">${h.name}</span>
-      <span class="history-detail">[${h.rolls.join(',')}${h.modifier ? (h.modifier>0?'+':'')+h.modifier : ''}]</span>
-      <span class="history-total">${h.total}</span>
-    `;
-    container.appendChild(entry);
+function renderLog(){
+  const el=document.getElementById('rollLog');
+  const hdr=el.querySelector('.log-header-row');
+  el.innerHTML='';
+  const h=document.createElement('div');h.className='log-header-row';h.textContent='Roll Log';
+  el.appendChild(h);
+  state.rollLog.slice().reverse().forEach(e=>{
+    const div=document.createElement('div');div.className='log-entry';
+    const badge=`<span class="log-vis-badge ${e.vis}">${e.vis.toUpperCase()}</span>`;
+    const dmgStr=buildDiceStr(e.diceArr,e.mod);
+    let html=`<span class="log-who">${escHtml(e.who)}</span>: `;
+    if(e.atkRoll){
+      const atkStr='1d20'+(e.atkMod!==0?(e.atkMod>0?`+${e.atkMod}`:`${e.atkMod}`):'');
+      html+=`<span class="log-type">${escHtml(e.label)}</span> `;
+      html+=`<span class="log-formula">${atkStr}</span> = <span class="log-result">Atk:[${e.atkRoll.total}]</span> `;
+      html+=`<span class="log-formula">${dmgStr}</span> = <span class="log-result">Dmg:[${e.dmgSum}]</span>`;
+    } else {
+      html+=`<span class="log-type">${escHtml(e.label)}</span> `;
+      html+=`<span class="log-formula">${dmgStr}</span> = <span class="log-result">[${e.dmgSum}]</span>`;
+    }
+    html+=` ${badge}`;
+    div.innerHTML=html;
+    el.appendChild(div);
   });
 }
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ══════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════
-function init() {
-  // Build spell rows in state
-  for (let lvl = 1; lvl <= 9; lvl++) {
-    if (!state[`spells_${lvl}`]) state[`spells_${lvl}`] = [{ name:'', prepared:false }];
-    if (!state[`slots_total_${lvl}`]) state[`slots_total_${lvl}`] = 0;
-    if (!state[`slots_used_${lvl}`]) state[`slots_used_${lvl}`] = 0;
-  }
-
-  loadAll();
-  renderLanguages();
-  
-  // Render inventory
-  if (state.inventory.length === 0) {
-    // Add default empty rows
-    for (let i = 0; i < 3; i++) state.inventory.push({ name:'', weight:'', notes:'' });
-  }
-  renderInventory();
-  renderSpellLevels();
-  renderPresets();
-  renderHistory();
-  updateMods();
-  updateXP();
+// ══════════════════════════════════════════
+//  OSE MODIFIERS
+// ══════════════════════════════════════════
+const OSE={
+  str:v=>v<=3?'Hit:-3,Dmg:-3':v<=5?'Hit:-2,Dmg:-2':v<=8?'Hit:-1,Dmg:-1':v<=12?'':v<=15?'Hit:+1,Dmg:+1':v<=17?'Hit:+2,Dmg:+2':'Hit:+3,Dmg:+3',
+  int:v=>v<=5?'Illiterate':v<=7?'1 lang':v<=12?'':v<=17?`${v-11} extra lang`:'5 extra lang',
+  wis:v=>{const m=v<=3?-3:v<=5?-2:v<=8?-1:v<=14?0:v<=17?v-14:4;return m?`Saves:${m>0?'+':''}${m}`:'';}  ,
+  dex:v=>{const m=v<=3?-3:v<=5?-2:v<=8?-1:v<=12?0:v<=15?1:v<=17?2:3;return m?`AC/Init:${m>0?'+':''}${m}`:'';},
+  con:v=>{const m=v<=3?-3:v<=5?-2:v<=8?-1:v<=12?0:v<=15?1:v<=17?2:3;return m?`HP:${m>0?'+':''}${m}/die`:'';},
+  cha:v=>v<=3?'Ret:1,Mor:4':v<=5?'Ret:2,Mor:5':v<=8?'Ret:3,Mor:6':v<=12?'':v<=15?'Ret:5,Mor:8':v<=17?'Ret:6,Mor:9':'Ret:7,Mor:10'
+};
+function calcMods(){
+  ['str','int','wis','dex','con','cha'].forEach(s=>{
+    const v=parseInt(document.getElementById('s-'+s)?.value);
+    const el=document.getElementById('m-'+s);if(!el)return;
+    if(isNaN(v)||v<3||v>18){el.innerHTML='';return;}
+    const lbl=OSE[s](v);
+    el.innerHTML=lbl?`<span class="mod-item">${lbl}</span>`:'';
+  });
+  saveData();
 }
 
-init();
+// ══════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════
+const TABS=['stats','abilities','inventory','spells','notes'];
+function switchTab(n){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',TABS[i]===n));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+n));
+}
+
+// ══════════════════════════════════════════
+//  INVENTORY — WEAPONS (in inventory tab)
+// ══════════════════════════════════════════
+function addWeaponInvRow(w={name:'',dmg:'',hit:'',range:'',wt:0}){
+  const idx=state.weaponInv.length; state.weaponInv.push({...w});
+  const row=document.createElement('div');row.className='inv-row-weapon';
+  row.innerHTML=`
+    <input type="text" placeholder="Weapon" value="${escHtml(w.name||'')}" oninput="state.weaponInv[${idx}].name=this.value;saveData()"/>
+    <input type="text" placeholder="1d6" value="${escHtml(w.dmg||'')}" oninput="state.weaponInv[${idx}].dmg=this.value;saveData()"/>
+    <input type="text" placeholder="+1" value="${escHtml(w.hit||'')}" oninput="state.weaponInv[${idx}].hit=this.value;saveData()"/>
+    <input type="text" placeholder="30'" value="${escHtml(w.range||'')}" oninput="state.weaponInv[${idx}].range=this.value;saveData()"/>
+    <input type="number" placeholder="0" value="${w.wt||''}" oninput="state.weaponInv[${idx}].wt=+this.value;calcEnc()"/>
+    <button class="del-btn" onclick="this.closest('.inv-row-weapon').remove();state.weaponInv[${idx}]=null;calcEnc()">×</button>`;
+  document.getElementById('weaponList').appendChild(row);
+}
+
+// ══════════════════════════════════════════
+//  INVENTORY — ARMOR
+// ══════════════════════════════════════════
+function addArmorRow(a={name:'',ac:'',type:'',wt:0}){
+  const idx=state.armorInv.length; state.armorInv.push({...a});
+  const row=document.createElement('div');row.className='inv-row-armor';
+  row.innerHTML=`
+    <input type="text" placeholder="Chain Mail" value="${escHtml(a.name||'')}" oninput="state.armorInv[${idx}].name=this.value;saveData()"/>
+    <input type="text" placeholder="14" value="${escHtml(a.ac||'')}" oninput="state.armorInv[${idx}].ac=this.value;saveData()"/>
+    <input type="text" placeholder="Medium" value="${escHtml(a.type||'')}" oninput="state.armorInv[${idx}].type=this.value;saveData()"/>
+    <input type="number" placeholder="0" value="${a.wt||''}" oninput="state.armorInv[${idx}].wt=+this.value;calcEnc()"/>
+    <button class="del-btn" onclick="this.closest('.inv-row-armor').remove();state.armorInv[${idx}]=null;calcEnc()">×</button>`;
+  document.getElementById('armorList').appendChild(row);
+}
+
+// ══════════════════════════════════════════
+//  INVENTORY — EQUIPMENT
+// ══════════════════════════════════════════
+function addInvRow(item={name:'',qty:1,wt:0,gp:0}){
+  const idx=state.inventory.length; state.inventory.push({...item});
+  const row=document.createElement('div');row.className='inv-row-equip';
+  row.innerHTML=`
+    <input type="text" placeholder="Item name" value="${escHtml(item.name||'')}" oninput="state.inventory[${idx}].name=this.value;saveData()"/>
+    <input type="number" placeholder="1" value="${item.qty||''}" oninput="state.inventory[${idx}].qty=+this.value;calcEnc()"/>
+    <input type="number" placeholder="0" value="${item.wt||''}" oninput="state.inventory[${idx}].wt=+this.value;calcEnc()"/>
+    <input type="number" placeholder="0" value="${item.gp||''}" oninput="state.inventory[${idx}].gp=+this.value;saveData()"/>
+    <button class="del-btn" onclick="this.closest('.inv-row-equip').remove();state.inventory[${idx}]=null;calcEnc()">×</button>`;
+  document.getElementById('inventoryList').appendChild(row); calcEnc();
+}
+
+function calcEnc(){
+  const ww=state.weaponInv.filter(Boolean).reduce((s,i)=>(+i.wt||0)+s,0);
+  const aw=state.armorInv.filter(Boolean).reduce((s,i)=>(+i.wt||0)+s,0);
+  const ew=state.inventory.filter(Boolean).reduce((s,i)=>(+i.wt||0)*(+i.qty||1)+s,0);
+  const total=ww+aw+ew;
+  document.getElementById('totalEnc').textContent=total;
+  document.getElementById('encLevel').textContent=total<=400?'Unencumbered':total<=800?'Lightly Enc.':total<=1200?'Encumbered':total<=1600?'Heavily Enc.':'Severely Enc.';
+  saveData();
+}
+
+// ══════════════════════════════════════════
+//  ABILITIES
+// ══════════════════════════════════════════
+function addAbilityRow(tbodyId,arrName,row={name:'',score:'',notes:''}){
+  const idx=state[arrName].length; state[arrName].push({...row});
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><input type="text" value="${escHtml(row.name||'')}" placeholder="Name" oninput="state['${arrName}'][${idx}].name=this.value;saveData()"/></td>
+    <td class="score-cell"><input type="text" value="${escHtml(row.score||'')}" placeholder="—" oninput="state['${arrName}'][${idx}].score=this.value;saveData()"/></td>
+    <td><input type="text" value="${escHtml(row.notes||'')}" placeholder="Notes" oninput="state['${arrName}'][${idx}].notes=this.value;saveData()"/></td>
+    <td><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td>`;
+  document.getElementById(tbodyId).appendChild(tr);
+}
+
+// ══════════════════════════════════════════
+//  SPELLS
+// ══════════════════════════════════════════
+function buildSpellUI(){
+  const c=document.getElementById('spellLevels');c.innerHTML='';
+  state.spells.forEach((lvl,li)=>{
+    const sec=document.createElement('div');
+    sec.innerHTML=`<div class="spell-level-header">
+      <span class="spell-level-title">Level ${lvl.level}</span>
+      <label style="font-size:10px;color:var(--ink-light);">Slots:</label>
+      <input class="slot-count-input" type="number" value="${lvl.slots}" min="0" max="9" oninput="state.spells[${li}].slots=+this.value;rebuildPips(${li});saveData()"/>
+      <div class="spell-slots" id="pips-${li}"></div>
+    </div>
+    <div id="spellList-${li}"></div>
+    <button class="add-row-btn" onclick="addSpellRow(${li})">+ Add Spell</button>`;
+    c.appendChild(sec); rebuildPips(li);
+    lvl.list.forEach(s=>addSpellRow(li,s));
+  });
+}
+function rebuildPips(li){
+  const el=document.getElementById('pips-'+li);if(!el)return;
+  const lvl=state.spells[li];el.innerHTML='';
+  for(let i=0;i<lvl.slots;i++){
+    const p=document.createElement('div');p.className='slot-pip'+(i<lvl.used?' used':'');
+    p.onclick=()=>{lvl.used=p.classList.toggle('used')?lvl.used+1:Math.max(0,lvl.used-1);saveData();};
+    el.appendChild(p);
+  }
+}
+function addSpellRow(li,spell={name:'',notes:''}){
+  const c=document.getElementById('spellList-'+li);if(!c)return;
+  const idx=state.spells[li].list.length;state.spells[li].list.push({...spell});
+  const row=document.createElement('div');row.className='spell-row';
+  row.innerHTML=`
+    <input type="text" value="${escHtml(spell.name||'')}" placeholder="Spell name" oninput="state.spells[${li}].list[${idx}].name=this.value;saveData()"/>
+    <input type="text" value="${escHtml(spell.notes||'')}" placeholder="Notes" oninput="state.spells[${li}].list[${idx}].notes=this.value;saveData()"/>
+    <button class="del-btn" onclick="this.closest('.spell-row').remove();state.spells[${li}].list.splice(${idx},1);saveData()">×</button>`;
+  c.appendChild(row);
+}
+
+// ══════════════════════════════════════════
+//  NOTES PAGES
+// ══════════════════════════════════════════
+let activeNoteIdx=0;
+
+function renderNotesTabBar(){
+  const bar=document.getElementById('notesTabBar');
+  // remove old tabs (keep newPageBtn)
+  bar.querySelectorAll('.notes-tab-btn').forEach(b=>b.remove());
+  const newBtn=document.getElementById('newPageBtn');
+  state.notesPages.forEach((pg,i)=>{
+    const btn=document.createElement('button');
+    btn.className='notes-tab-btn'+(i===activeNoteIdx?' active':'');
+    const nameSpan=document.createElement('span');
+    nameSpan.className='notes-tab-name';
+    nameSpan.contentEditable='true';
+    nameSpan.textContent=pg.title||'Page '+(i+1);
+    nameSpan.spellcheck=false;
+    nameSpan.oninput=()=>{state.notesPages[i].title=nameSpan.textContent;saveData();};
+    nameSpan.onclick=(e)=>{e.stopPropagation();};
+    const delSpan=document.createElement('span');
+    delSpan.className='notes-tab-del';
+    delSpan.textContent='×';
+    delSpan.onclick=(e)=>{e.stopPropagation();deleteNotesPage(i);};
+    btn.appendChild(nameSpan);
+    if(state.notesPages.length>1) btn.appendChild(delSpan);
+    btn.addEventListener('click',()=>switchNotesPage(i));
+    bar.insertBefore(btn,newBtn);
+  });
+}
+
+function renderNotesPages(){
+  const c=document.getElementById('notesPagesContainer');c.innerHTML='';
+  state.notesPages.forEach((pg,i)=>{
+    const div=document.createElement('div');
+    div.className='notes-page'+(i===activeNoteIdx?' active':'');
+    div.id='notesPage-'+i;
+    const ta=document.createElement('textarea');
+    ta.className='big-notes';
+    ta.value=pg.text||'';
+    ta.placeholder='Write your notes here…';
+    ta.oninput=()=>{state.notesPages[i].text=ta.value;saveData();};
+    div.appendChild(ta);
+    c.appendChild(div);
+  });
+}
+
+function switchNotesPage(i){
+  activeNoteIdx=i;
+  renderNotesTabBar();
+  document.querySelectorAll('.notes-page').forEach((p,j)=>p.classList.toggle('active',j===i));
+}
+
+function addNotesPage(){
+  state.notesPages.push({title:'Page '+(state.notesPages.length+1),text:''});
+  activeNoteIdx=state.notesPages.length-1;
+  renderNotesTabBar();
+  renderNotesPages();
+  saveData();
+}
+
+function deleteNotesPage(i){
+  if(state.notesPages.length<=1) return;
+  state.notesPages.splice(i,1);
+  if(activeNoteIdx>=state.notesPages.length) activeNoteIdx=state.notesPages.length-1;
+  renderNotesTabBar();
+  renderNotesPages();
+  saveData();
+}
+
+// ══════════════════════════════════════════
+//  PERSISTENCE
+// ══════════════════════════════════════════
+const FIELD_IDS=['charName','charClass','charRace','charLevel','charAlign','charXP',
+  's-str','s-int','s-wis','s-dex','s-con','s-cha',
+  'hpMax','hpCur','armorClass','initMod','attackBonus','damageBonus','moveRate','thac0',
+  'sv-dp','sv-w','sv-ps','sv-b','sv-sr',
+  'langDetails','racialAbilities',
+  'coinGP','coinSP','coinCP','coinEP','coinPP','coinGems'];
+
+function saveData(){
+  const f={};
+  FIELD_IDS.forEach(id=>{const el=document.getElementById(id);if(el)f[id]=el.value;});
+  state.fields=f;
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
+}
+
+function init(){
+  let saved;
+  try{const r=localStorage.getItem(STORAGE_KEY);if(r)saved=JSON.parse(r);}catch(e){}
+  if(saved){
+    if(saved.fields) Object.assign(state.fields,saved.fields);
+    if(saved.inventory) state.inventory=saved.inventory;
+    if(saved.weaponInv) state.weaponInv=saved.weaponInv;
+    if(saved.armorInv) state.armorInv=saved.armorInv;
+    if(saved.classAbilities) state.classAbilities=saved.classAbilities;
+    if(saved.spells) state.spells=saved.spells.map((s,i)=>({...state.spells[i],...s}));
+    if(saved.presets&&saved.presets.length) state.presets=saved.presets;
+    if(saved.notesPages&&saved.notesPages.length) state.notesPages=saved.notesPages;
+    if(saved.rollLog) state.rollLog=saved.rollLog;
+    if(saved.visibility) state.visibility=saved.visibility;
+  }
+  FIELD_IDS.forEach(id=>{const el=document.getElementById(id);if(el&&state.fields[id]!==undefined)el.value=state.fields[id];});
+
+  const si=[...state.inventory];state.inventory=[];
+  si.filter(Boolean).forEach(i=>addInvRow(i));
+  const sw=[...state.weaponInv];state.weaponInv=[];
+  sw.filter(Boolean).forEach(w=>addWeaponInvRow(w));
+  const sa=[...state.armorInv];state.armorInv=[];
+  sa.filter(Boolean).forEach(a=>addArmorRow(a));
+
+  const sca=[...state.classAbilities];state.classAbilities=[];
+  sca.forEach(r=>addAbilityRow('classAbilitiesBody','classAbilities',r));
+
+  buildSpellUI();
+  buildDiceIcons();
+  renderPresets();
+  setVis(state.visibility);
+  renderLog();
+  calcMods();
+  renderNotesTabBar();
+  renderNotesPages();
+
+  document.querySelectorAll('input,textarea,select').forEach(el=>el.addEventListener('input',()=>saveData()));
+  document.getElementById('diceMod').addEventListener('input',updateDicePreview);
+  document.getElementById('atkMod').addEventListener('input',updateDicePreview);
+}
+document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
