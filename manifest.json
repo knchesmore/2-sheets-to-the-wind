@@ -1,0 +1,17 @@
+{
+  "name": "OSE Advanced Fantasy Character Sheet",
+  "version": "1.0.0",
+  "description": "A full character sheet for Old-School Essentials Advanced Fantasy with dice roller",
+  "author": "OSE Tools",
+  "icon": "/icon.svg",
+  "tokens": [],
+  "action": {
+    "title": "OSE Character Sheet",
+    "icon": "/icon.svg",
+    "popover": {
+      "url": "/src/sheet.html",
+      "height": 680,
+      "width": 520
+    }
+  }
+}
